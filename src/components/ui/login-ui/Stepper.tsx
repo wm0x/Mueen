@@ -94,12 +94,25 @@ export default function Stepper({
       {...rest}
     >
       <div
-        className={`mx-auto w-full max-w-md rounded-4xl shadow-xl ${stepCircleContainerClassName}`}
-        style={{ border: "1px solid #222" }}
+        className={`mx-auto w-full max-w-md rounded-4xl shadow-xl border  ${stepCircleContainerClassName}`}
+        
       >
+
         <div
           className={`${stepContainerClassName} flex w-full items-center p-8`}
         >
+                      <div className="flex items-center gap-3 mb-4 w-full text-center justify-center">
+              <img
+                src={"/mueen.png"}
+                alt={"logo"}
+                width={45}
+                height={45}
+                className="dark:invert"
+              />
+              <span className="text-2xl font-bold text-black dark:text-white ">
+                مُــــــعِــــــيــــــن
+              </span>
+            </div>
           {stepsArray.map((_, index) => {
             const stepNumber = index + 1;
             const isNotLastStep = index < totalSteps - 1;
@@ -115,18 +128,24 @@ export default function Stepper({
                     },
                   })
                 ) : (
-                  <StepIndicator
-                    step={stepNumber}
-                    disableStepIndicators={disableStepIndicators}
-                    currentStep={currentStep}
-                    onClickStep={(clicked) => {
-                      setDirection(clicked > currentStep ? 1 : -1);
-                      updateStep(clicked);
-                    }}
-                  />
+                  // <StepIndicator
+                  //   step={stepNumber}
+                  //   disableStepIndicators={disableStepIndicators}
+                  //   currentStep={currentStep}
+                  //   onClickStep={(clicked) => {
+                  //     setDirection(clicked > currentStep ? 1 : -1);
+                  //     updateStep(clicked);
+                  //   }}
+                  // />
+                  <div>
+                    
+                  </div>
                 )}
                 {isNotLastStep && (
-                  <StepConnector isComplete={currentStep > stepNumber} />
+                  // <StepConnector isComplete={currentStep > stepNumber} />
+                  <div>
+
+                  </div>
                 )}
               </React.Fragment>
             );
@@ -154,7 +173,7 @@ export default function Stepper({
                   onClick={handleBack}
                   className={`duration-350 rounded px-2 py-1 transition ${
                     currentStep === 1
-                      ? "pointer-events-none opacity-50 text-neutral-400"
+                      ? " hover:cursor-pointer opacity-50 text-neutral-400"
                       : "text-neutral-400 hover:text-neutral-700"
                   }`}
                   {...backButtonProps}
@@ -164,7 +183,7 @@ export default function Stepper({
               )}
               <button
                 onClick={isLastStep ? handleComplete : handleNext}
-                className="duration-350 flex items-center justify-center rounded-full bg-green-500 py-1.5 px-3.5 font-medium tracking-tight text-white transition hover:bg-green-600 active:bg-green-700"
+                className="duration-350 flex hover:cursor-pointer items-center justify-center rounded-full bg-green-500 py-1.5 px-3.5 font-medium tracking-tight text-white transition hover:bg-green-600 active:bg-green-700"
                 {...nextButtonProps}
               >
                 {isLastStep ? "Complete" : nextButtonText}
@@ -281,95 +300,36 @@ interface StepIndicatorProps {
   disableStepIndicators?: boolean;
 }
 
-function StepIndicator({
-  step,
-  currentStep,
-  onClickStep,
-  disableStepIndicators = false,
-}: StepIndicatorProps) {
-  const status =
-    currentStep === step
-      ? "active"
-      : currentStep < step
-      ? "inactive"
-      : "complete";
 
-  const handleClick = () => {
-    if (step !== currentStep && !disableStepIndicators) {
-      onClickStep(step);
-    }
-  };
-
-  return (
-    <motion.div
-      onClick={handleClick}
-      className="relative cursor-pointer outline-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-full"
-      animate={status}
-      initial={false}
-    >
-      <motion.div
-        variants={{
-          inactive: {
-            scale: 1,
-            backgroundColor: "#e2e8f0",
-            borderColor: "#cbd5e1",
-          },
-          active: {
-            scale: 1.1,
-            backgroundColor: "#16a34a",
-            borderColor: "#16a34a",
-          },
-          complete: {
-            scale: 1,
-            backgroundColor: "#22c55e",
-            borderColor: "#22c55e",
-          },
-        }}
-        transition={{ duration: 0.3 }}
-        className="flex h-8 w-8 items-center justify-center rounded-full font-semibold border-2 dark:border-gray-700"
-      >
-        {status === "complete" ? (
-          <CheckIcon className="h-4 w-4 text-white" />
-        ) : status === "active" ? (
-          <div className="h-3 w-3 rounded-full bg-white" />
-        ) : (
-          <span className="text-sm text-slate-600 dark:text-slate-400">
-            {step}
-          </span>
-        )}
-      </motion.div>
-    </motion.div>
-  );
-}
 
 interface StepConnectorProps {
   isComplete: boolean;
 }
 
-function StepConnector({ isComplete }: StepConnectorProps) {
-  const lineVariants: Variants = {
-    incomplete: {
-      width: 0,
-      backgroundColor: "#e2e8f0",
-    },
-    complete: {
-      width: "100%",
-      backgroundColor: "#22c55e",
-    },
-  };
+// function StepConnector({ isComplete }: StepConnectorProps) {
+//   const lineVariants: Variants = {
+//     incomplete: {
+//       width: 0,
+//       backgroundColor: "#e2e8f0",
+//     },
+//     complete: {
+//       width: "100%",
+//       backgroundColor: "#22c55e",
+//     },
+//   };
 
-  return (
-    <div className="relative mx-2 h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-      <motion.div
-        className="absolute right-0 top-0 h-full rounded-full"
-        variants={lineVariants}
-        initial={false}
-        animate={isComplete ? "complete" : "incomplete"}
-        transition={{ duration: 0.4 }}
-      />
-    </div>
-  );
-}
+//   return (
+//     <div className="relative mx-2 h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+//       <motion.div
+//         className="absolute right-0 top-0 h-full rounded-full"
+//         variants={lineVariants}
+//         initial={false}
+//         animate={isComplete ? "complete" : "incomplete"}
+//         transition={{ duration: 0.4 }}
+//       />
+//     </div>
+//   );
+// }
 
 interface CheckIconProps extends React.SVGProps<SVGSVGElement> {}
 

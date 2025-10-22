@@ -19,12 +19,31 @@ model User {
   id            String   @id @default(cuid())
   name          String
   email         String   @unique
+  phone         String?  @unique
   password_hash String
   createdAt     DateTime @default(now())
-  role          String  @default("customer")
+  role          String   @default("customer")
 
   orders        Order[]
 }
+
+model OtpToken {
+  id      String   @id @default(uuid())
+  // 💡 نستخدم email كعنصر رئيسي للبحث
+  email   String   @unique 
+  token   String
+  expires DateTime
+
+  @@index([email]) // يسرّع عملية البحث في الرمز
+}
+
+model PasswordResetToken {
+  id      String   @id @default(uuid())
+  email   String   @unique
+  token   String   @unique
+  expires DateTime
+}
+
 
 model Order {
   id          String   @id @default(cuid())

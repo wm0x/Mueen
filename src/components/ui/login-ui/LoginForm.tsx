@@ -1,11 +1,13 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, startTransition } from "react";
 import Stepper, { Step } from "./Stepper";
 import { Input } from "../input";
 import ReactCountryFlag from "react-country-flag";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+
+import { useRouter } from "next/navigation";
 
 import {
   LoginUser as LoginSchema,
@@ -18,16 +20,22 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/form";
+import { login } from "@/app/api/server/action/loginAction";
+import { LoaderTwo } from "../loader";
 
 const EmailCheckSchema = z.object({
   email: z.string().email({ message: "يرجى إدخال بريد إلكتروني صالح" }),
 });
 
 function LoginForm() {
+  const router = useRouter();
   const [emailChecked, setEmailChecked] = useState<string>("");
   const [emailExists, setEmailExists] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [loginError, setLoginError] = useState<string | undefined>("");
+  const [signInError, setSignInError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
 
   const emailForm = useForm<z.infer<typeof EmailCheckSchema>>({
     resolver: zodResolver(EmailCheckSchema),
@@ -60,20 +68,67 @@ function LoginForm() {
 
   const isSignInFormValid = signInForm.formState.isValid;
 
-  const existingEmails = [
-    "student@kau.edu.sa",
-    "teacher@kau.edu.sa",
-    "admin@kau.edu.sa",
-  ];
+  const onLoginSubmit = async (values: z.infer<typeof LoginSchema>) => {
+    setLoginError("");
+    setSuccess("");
 
-  const onLoginSubmit = async (data: z.infer<typeof LoginSchema>) => {
-    console.log("🟢 تسجيل الدخول", data);
-    alert("Login Attempt Successful! Check console for data.");
+    startTransition(async () => {
+      const data = await login(values);
+
+      if (data?.error) {
+        setLoginError(data.error);
+        return;
+      }
+
+      if (data?.success) {
+        router.push(data.redirectUrl);
+      }
+    });
   };
 
-  const onSignInSubmit = async (data: z.infer<typeof SignInSchema>) => {
-    console.log("🟢 إنشاء حساب جديد", data);
-    alert("Sign Up Attempt Successful! Check console for data.");
+  const onSignInSubmit = async (values: z.infer<typeof SignInSchema>) => {
+    setSignInError("");
+    setSuccess("");
+    setLoading(true);
+
+    try {
+      // 1. إنشاء المستخدم (API Route)
+      const res = await fetch("/api/users/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      const data = await res.json();
+
+      // 🚨 معالجة أخطاء الخادم (مثل البريد/الهاتف مسجلان بالفعل)
+      if (!res.ok || data?.error) {
+        setSignInError(data?.error || "حدث خطأ أثناء إنشاء الحساب.");
+        return;
+      }
+
+      // ✅ نجاح التسجيل: الآن نحاول تسجيل الدخول تلقائيًا باستخدام Server Action
+      const loginData = await login({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (loginData?.success) {
+        // 2. نجاح الدخول: توجيه المستخدم
+        router.push(loginData.redirectUrl);
+      } else {
+        // 3. فشل الدخول التلقائي بعد التسجيل (عرض خطأ الخادم أو رسالة افتراضية)
+        // 💡 لا حاجة لتصفير الخطأ مرة أخرى. نستخدم setError مباشرة.
+        setSignInError(
+          loginData?.error || "تم إنشاء الحساب، ولكن فشل تسجيل الدخول التلقائي."
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setSignInError("فشل الاتصال بالخادم.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handlePhoneInputFilter = useCallback(
@@ -96,30 +151,56 @@ function LoginForm() {
 
   const checkEmail = useCallback(
     async (currentEmail: string) => {
-      if (!isEmailValid) return false;
-
       setLoading(true);
       loginForm.setValue("email", currentEmail);
       signInForm.setValue("email", currentEmail);
       setEmailChecked(currentEmail);
 
-      return new Promise<void>((resolve) => {
-        setTimeout(() => {
-          const exists = existingEmails.includes(
-            currentEmail.trim().toLowerCase()
-          );
-          setEmailExists(exists);
-          setLoading(false);
-          setCurrentStep(2);
-          resolve();
-        }, 500);
-      });
+      try {
+        const res = await fetch("/api/users/check-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: currentEmail }),
+        });
+
+        let data;
+        let errorMessage = "فشل التحقق من البريد. يرجى مراجعة الاتصال.";
+
+        if (!res.ok) {
+          try {
+            const errorJson = await res.json();
+            errorMessage =
+              errorJson.error || `خطأ في الخادم (الحالة: ${res.status})`;
+          } catch (e) {
+            const errorText = await res.text();
+            console.error(
+              "Received non-JSON error:",
+              errorText.substring(0, 100) + "..."
+            );
+            errorMessage = `حدث خطأ غير متوقع في الخادم. (الحالة: ${res.status})`;
+          }
+
+          console.log("❌ Fetch returned error:", errorMessage);
+          return;
+        }
+
+        data = await res.json();
+
+        setEmailExists(data.exists);
+
+        setCurrentStep(2);
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
     },
-    [existingEmails, loginForm, signInForm, isEmailValid]
+    [isEmailValid, loginForm, signInForm]
   );
 
   const nextStep = useCallback(async () => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
 
     if (currentStep === 1) {
       const isValid = await emailForm.trigger("email");
@@ -144,6 +225,7 @@ function LoginForm() {
     signInForm,
     checkEmail,
   ]);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -217,7 +299,12 @@ function LoginForm() {
         </Step>
 
         <Step>
-          {loading && <p className="text-gray-400">جارٍ التحقق من البريد...</p>}
+          {loading && (
+            <div className="flex items-center justify-center w-full h-full mx-auto my-auto">
+              {" "}
+              <LoaderTwo text={"......"} />{" "}
+            </div>
+          )}
 
           {emailExists !== null && !loading ? (
             <>
@@ -235,10 +322,11 @@ function LoginForm() {
                           <Input
                             type="password"
                             placeholder="كلمة المرور"
-                            dir="ltr"
+                            dir="rtl"
                             {...field}
                           />
                         </FormControl>
+                        {/* هذه رسالة خطأ التحقق من Zod */}
                         <FormMessage
                           dir="rtl"
                           className="text-red-500 text-sm mt-2"
@@ -246,6 +334,17 @@ function LoginForm() {
                       </FormItem>
                     )}
                   />
+
+                  {loginError && (
+                    <div className="mb-3">
+                    <div
+                      dir="rtl"
+                      className="mt-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/50 border border-red-400 text-red-700 dark:text-red-300"
+                    >
+                      <p className="font-semibold text-sm">{loginError}</p>
+                    </div>
+                  </div>
+                  )}
                 </Form>
               )}
               {emailExists === false && (
@@ -253,20 +352,13 @@ function LoginForm() {
                   <h2 className="text-lg font-semibold mb-2">
                     لم يتم العثور على البريد - إنشاء حساب لـ: {emailChecked}
                   </h2>
-
-                  {/* 👈🏽 ملاحظة: تمت إزالة className="flex flex-col gap-6 w-full" من هنا
-                       إذا لم يكن ضرورياً لتفادي أي مشاكل في التنسيق. 
-                       سنستبدل gap-6 بـ margin-bottom يدوي لـ FormItem لتجنب المساحات الفارغة
-                    */}
                   <div className="flex flex-col w-full">
-                    {/* حقل الاسم - (تمت إزالة FormMessage) */}
                     <FormField
                       control={signInForm.control}
                       name="name"
                       render={({ field }) => (
                         <FormItem className="mb-4">
                           {" "}
-                          {/* mb-4 بدلاً من gap-6 */}
                           <FormControl>
                             <Input
                               type="text"
@@ -274,19 +366,16 @@ function LoginForm() {
                               {...field}
                             />
                           </FormControl>
-                          {/* <FormMessage dir="rtl" className="text-red-500 text-sm mt-2" /> 👈🏽 تمت إزالتها */}
                         </FormItem>
                       )}
                     />
 
-                    {/* حقل الهاتف - (تمت إزالة FormMessage) */}
                     <FormField
                       control={signInForm.control}
                       name="phone"
                       render={({ field }) => (
                         <FormItem className="mb-4">
                           {" "}
-                          {/* mb-4 بدلاً من gap-6 */}
                           <div className="flex items-center w-full">
                             <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-r-md px-3 bg-gray-50 dark:bg-gray-800 h-10">
                               <ReactCountryFlag
@@ -316,12 +405,10 @@ function LoginForm() {
                               </FormControl>
                             </div>
                           </div>
-                          {/* <FormMessage dir="rtl" className="text-red-500 text-sm mt-2" /> 👈🏽 تمت إزالتها */}
                         </FormItem>
                       )}
                     />
 
-                    {/* حقل كلمة المرور - (تمت إزالة FormMessage) */}
                     <FormField
                       control={signInForm.control}
                       name="password"
@@ -390,10 +477,6 @@ function LoginForm() {
                       }}
                     />
                   </div>
-
-                  {/* ========================================================== */}
-                  {/* 💡 عرض جميع رسائل الأخطاء في مكان واحد أسفل النموذج */}
-                  {/* ========================================================== */}
                   {Object.keys(signInForm.formState.errors).length > 0 && (
                     <div
                       dir="rtl"
@@ -436,6 +519,16 @@ function LoginForm() {
                       </div>
                     </div>
                   )}
+                  {signInError && (
+                    <div className="mb-3">
+                      <div
+                        dir="rtl"
+                        className="mt-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/50 border border-red-400 text-red-700 dark:text-red-300"
+                      >
+                        <p className="font-semibold text-sm">{signInError}</p>
+                      </div>
+                    </div>
+                  )}
                 </Form>
               )}
             </>
@@ -448,9 +541,7 @@ function LoginForm() {
         </Step>
 
         <Step>
-            <h1>
-                test
-            </h1>
+          <h1>this for next button work</h1>
         </Step>
       </Stepper>
     </div>
