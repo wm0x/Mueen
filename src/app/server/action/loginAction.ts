@@ -4,8 +4,7 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { signIn } from "@/auth";
-import { getUserByEmail } from "../../../../../data/user";
-
+import { getUserByEmail } from "../../../../data/user";
 
 const LoginSchema = z.object({
   email: z.email("يرجى إدخال البريد الإلكتروني"),
@@ -45,5 +44,3 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   console.log(user);
   return { success: true, redirectUrl: DEFAULT_LOGIN_REDIRECT };
 };
-
-

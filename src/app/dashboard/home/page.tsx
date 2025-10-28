@@ -1,12 +1,15 @@
-import HomePage from '@/components/ui/dashboard-ui/home-ui/HomePage'
-import React from 'react'
+// src/app/dashboard/home/page.tsx (This is a Server Component, no 'use client')
+import { auth } from "@/auth";
+import HomePage from "@/components/ui/dashboard-ui/home-ui/HomePage";
 
-function page() {
+export default async function DashboardPage() {
+  // ✅ Fetch session securely on the Server
+  const session = await auth(); 
+
   return (
     <div className='h-screen'>
-      <HomePage/>
+      {/* Pass the session data as a prop */}
+      <HomePage session={session} />
     </div>
-  )
+  );
 }
-
-export default page

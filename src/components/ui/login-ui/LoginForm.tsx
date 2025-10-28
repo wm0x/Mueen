@@ -19,8 +19,8 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "@/components/form";
-import { login } from "@/app/api/server/action/loginAction";
+} from "@/components/ui/form";
+import { login } from "@/app/server/action/loginAction";
 import { LoaderTwo } from "../loader";
 
 const EmailCheckSchema = z.object({
@@ -337,13 +337,13 @@ function LoginForm() {
 
                   {loginError && (
                     <div className="mb-3">
-                    <div
-                      dir="rtl"
-                      className="mt-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/50 border border-red-400 text-red-700 dark:text-red-300"
-                    >
-                      <p className="font-semibold text-sm">{loginError}</p>
+                      <div
+                        dir="rtl"
+                        className="mt-4 p-3 rounded-lg bg-red-100 dark:bg-red-900/50 border border-red-400 text-red-700 dark:text-red-300"
+                      >
+                        <p className="font-semibold text-sm">{loginError}</p>
+                      </div>
                     </div>
-                  </div>
                   )}
                 </Form>
               )}

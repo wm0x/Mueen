@@ -6,63 +6,64 @@
 import { motion } from "framer-motion";
 import React from "react";
 
-export const LoaderOne = ({ text = "... لحظة من فضلك" }: { text?: string }) => {
-    return (
-      <div className="relative font-bold  [perspective:1000px] text-white">
-        <motion.span
-          animate={{
-            skewX: [0, -40, 0], // give me error there
-            scaleX: [1, 2, 1],
-          }}
-          transition={{
-            duration: 0.05,
-            repeat: Infinity,
-            repeatType: "reverse",
-            repeatDelay: 2,
-            ease: "linear",
-            times: [0, 0.2, 0.5, 0.8, 1],
-          }}
-          className="relative z-20 inline-block"
-        >
-          {text}
-        </motion.span>
-        <motion.span
-          className="absolute inset-0 text-[#00e571]/50 blur-[0.5px] dark:text-[#00e571]"
-          animate={{
-            x: [-2, 4, -3, 1.5, -2],
-            y: [-2, 4, -3, 1.5, -2],
-            opacity: [0.3, 0.9, 0.4, 0.8, 0.3],
-          }}
-          transition={{
-            duration: 0.5,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "linear",
-            times: [0, 0.2, 0.5, 0.8, 1],
-          }}
-        >
-          {text}
-        </motion.span>
-        <motion.span
-          className="absolute inset-0 text-[#8b00ff]/50 dark:text-[#8b00ff]"
-          animate={{
-            x: [0, 1, -1.5, 1.5, -1, 0],
-            y: [0, -1, 1.5, -0.5, 0],
-            opacity: [0.4, 0.8, 0.3, 0.9, 0.4],
-          }}
-          transition={{
-            duration: 0.8,
-            repeat: Infinity,
-            repeatType: "reverse",
-            ease: "linear",
-            times: [0, 0.3, 0.6, 0.8, 1],
-          }}
-        >
-          {text}
-        </motion.span>
-      </div>
-    );
-  };
+export const LoaderOne = ({ text = " ... ثواني بس  " }: { text?: string }) => {
+  return (
+    <div className="relative font-bold [perspective:1000px] text-white">
+      <motion.span
+        animate={{
+          skewX: [0, -40, 0], 
+          scaleX: [1, 2, 1],
+        }}
+        transition={{
+          duration: 0.05,
+          repeat: Infinity,
+          repeatType: "reverse",
+          repeatDelay: 2,
+          ease: "linear",
+          times: [0, 0.2, 0.5, 0.8, 1],
+        }}
+        className="relative z-20 inline-block"
+      >
+        {text}
+      </motion.span>
+      <motion.span
+        className="absolute inset-0 text-[#00e571]/50 blur-[0.5px] dark:text-[#00e571]"
+        animate={{
+          x: [-2, 4, -3, 1.5, -2],
+          y: [-2, 4, -3, 1.5, -2],
+          opacity: [0.3, 0.9, 0.4, 0.8, 0.3],
+        }}
+        transition={{
+          duration: 0.5,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "linear",
+          times: [0, 0.2, 0.5, 0.8, 1],
+        }}
+      >
+        {text}
+      </motion.span>
+      <motion.span
+        className="absolute inset-0 text-[#8b00ff]/50 dark:text-[#8b00ff]"
+        animate={{
+          x: [0, 1, -1.5, 1.5, -1, 0],
+          y: [0, -1, 1.5, -0.5, 0],
+          opacity: [0.4, 0.8, 0.3, 0.9, 0.4],
+        }}
+        transition={{
+          duration: 0.8,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "linear",
+          times: [0, 0.3, 0.6, 0.8, 1],
+        }}
+        dir="rtl"
+      >
+        {text}
+      </motion.span>
+    </div>
+  );
+};
 
   export const LoaderTwo = ({ text }: { text: string }) => {
     return (

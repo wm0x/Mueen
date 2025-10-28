@@ -21,11 +21,11 @@ function Statistics() {
           الطلاب في المشاريع و المواد الدراسية الخ.
         </p>
       </div>
-      <div className="max-w-5xl border-2 mx-auto p-8 mt-20 border-green-500 rounded-4xl shadow-2xl bg-neutral-400/10">
+      <div className="max-w-5xl border-2 mx-auto p-8 mt-20 border-green-500 rounded-4xl shadow-2xl bg-neutral-400/10 mb-10">
         <h1 className="text-2xl font-extrabold text-center mt-10 mb-20">
           المشاريع التي تم انجازها
         </h1>
-        <div className=" flex gap-22 justify-center">
+        <div className=" flex flex-col mb-10 items-center md:flex-row gap-22 justify-center">
           <div className=" text-center">
             <h1 className="text-center text-2xl">مشاريع تخرج</h1>
             <NumberTicker

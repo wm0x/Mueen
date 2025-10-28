@@ -46,15 +46,19 @@ model PasswordResetToken {
 
 
 model Order {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   description String?
-  fileUrl     String?     
-  status      String      @default("pending") 
-  createdAt   DateTime    @default(now())
+  filesUrls   String[]   
+  subject     String[]   
+  status      String     @default("pending")
+  createdAt   DateTime   @default(now())
+  deadline    DateTime    
 
   userId      String
-  user        User        @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
 }
+
+
 
 
