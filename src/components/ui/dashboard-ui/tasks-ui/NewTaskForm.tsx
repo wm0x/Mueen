@@ -170,14 +170,11 @@ function NewTaskForm() {
                   className="data-[state=checked]:border-yellow-600 data-[state=checked]:bg-yellow-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
                 />
                 <div className="grid gap-1.5 font-normal">
-                  <p className="text-sm leading-none font-medium text-start">
-                    تنبيه !! ⚠️
-                  </p>
                   <p className="text-sm text-muted-foreground">
                     أقر بأنني قد اطلعت على{" "}
-                    <a href="http://" className="text-blue-500">
+                    <span className="text-blue-500">
                       الشروط والأحكام
-                    </a>{" "}
+                    </span>{" "}
                     وأوافق عليها
                   </p>
                 </div>

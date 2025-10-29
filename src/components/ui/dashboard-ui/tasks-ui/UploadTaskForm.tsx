@@ -146,7 +146,7 @@ function UploadTaskForm() {
               </span>
             </div>
             <div className="flex items-center text-center">
-              <h2 className="text-3xl font-bold dark:text-white mb-4 shadow-2xl">
+              <h2 className="text-3xl font-bold dark:text-white mb-4 ">
                 نموذج طلب واجب / مشروع
               </h2>
             </div>

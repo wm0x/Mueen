@@ -142,7 +142,7 @@ export const StatefulButton = ({ className, children, ...props }: ButtonProps) =
       layoutId="button"
       ref={scope}
       className={cn(
-        "flex min-w-[120px] cursor-pointer items-center justify-center gap-2 rounded-full bg-green-500 px-4 py-2 font-medium text-white ring-offset-2 transition duration-200 hover:ring-2 hover:ring-teal-400 dark:ring-offset-black",
+        "flex min-w-[120px] cursor-pointer items-center justify-center gap-2 rounded-full bg-teal-500 px-4 py-2 font-medium text-white ring-offset-2 transition duration-200 hover:ring-2 hover:ring-teal-400 dark:ring-offset-black",
         className,
       )}
       {...buttonProps}
