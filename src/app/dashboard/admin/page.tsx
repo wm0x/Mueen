@@ -3,10 +3,12 @@ import FollowCursorHideCursor from "@/hooks/mouse/mouse";
 import { cn } from "@/lib/utils";
 import React, { useEffect } from "react";
 import { MainMenusGradientCard } from "../../../components/ui/dashboard-ui/orders-ui/GradientCard";
-import { EditIcon, HistoryIcon, MousePointer } from "lucide-react";
+import { BringToFront, EditIcon, HistoryIcon, MousePointer } from "lucide-react";
 import { RiRefund2Fill, RiTimeLine } from "react-icons/ri";
 import Link from "next/link";
 import { PiQuestionMarkBold } from "react-icons/pi";
+import { IoBagCheckOutline, IoCheckmarkDoneCircleOutline } from "react-icons/io5";
+import { FaRegThumbsUp } from "react-icons/fa";
 
 function OrdersPage() {
   useEffect(() => {
@@ -39,15 +41,12 @@ function OrdersPage() {
           <Link href="/dashboard/orders/history" className="w-full">
             <MainMenusGradientCard
               className="p-4 cursor-pointer relative"
-              description="عرض جميع الطلبات "
+              description="عرض جميع الطلبات المتاحة الان فالنظام "
               title="الطلبات "
             >
               <div className="flex items-center mx-auto my-auto p-4 bg-neutral-400/15 rounded-xl w-fit justify-center">
-                <HistoryIcon className="size-6 text-neutral-400/80" />
+                <BringToFront className="size-6 text-neutral-400/80" />
               </div>
-              <span className="absolute top-2 left-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                ٣
-              </span>
             </MainMenusGradientCard>
           </Link>
 
@@ -57,13 +56,11 @@ function OrdersPage() {
           >
             <MainMenusGradientCard
               className="p-4 cursor-pointer"
-              description="تقديم طلب استرداد مبلغ أو اعتراض"
-              title=" استرداد مبلغ او اعتراض "
+              description="طلباتك"
+              title=" الطلبات التي قمت بقبولها "
             >
               <div className="flex items-center mx-auto my-auto p-4 gap-3 bg-neutral-400/15 rounded-xl w-fit justify-center">
-                <RiRefund2Fill className="size-6 text-neutral-400/80" />
-                /
-                <PiQuestionMarkBold className="size-6 text-neutral-400/80" />
+                <FaRegThumbsUp className="size-6 text-neutral-400/80" />
 
               </div>
             </MainMenusGradientCard>

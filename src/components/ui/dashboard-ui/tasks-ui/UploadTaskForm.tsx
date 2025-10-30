@@ -19,6 +19,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileDropzone } from "./Droppable";
 import { UploadOrderAction } from "@/app/server/action/orders";
+import { supabase } from "@/lib/supabase";
 
 const ClassList = [
   ...[
@@ -56,26 +57,62 @@ function UploadTaskForm() {
   >("idle");
 
   const handleSubmit = async () => {
-    setSuccess("")
-    setError("")
+    setSuccess("");
+    setError("");
     try {
       setButtonStatus("loading");
-
-      const result = await UploadOrderAction(form.getValues());
-
+  
+      // here upload the file from front end ..
+      const files = form.getValues().files;
+      const uploadedUrls: string[] = [];
+  
+      for (const file of files) {
+        const filePath = `orders/${Date.now()}_${file.name}`;
+        const { data, error } = await supabase.storage
+          .from("orders")
+          .upload(filePath, file);
+  
+        if (error) {
+          console.error(error);
+          setButtonStatus("error");
+          setError(`فشل رفع الملف: ${file.name}`);
+          return;
+        }
+  
+        const { data: publicData } = supabase.storage
+          .from("orders")
+          .getPublicUrl(filePath);
+  
+        if (!publicData?.publicUrl) {
+          setButtonStatus("error");
+          setError(`فشل الحصول على رابط الملف: ${file.name}`);
+          return;
+        }
+  
+        uploadedUrls.push(publicData.publicUrl);
+      }
+  
+      const result = await UploadOrderAction({
+        ...form.getValues(),
+        fileUrls: uploadedUrls,
+        files: [], 
+      });
+  
       if (result.error) {
         setButtonStatus("error");
         setSuccess(result.error);
         return;
       }
-
+  
       setButtonStatus("success");
       setSuccess(result.success);
     } catch (err) {
+      console.error(err);
       setButtonStatus("error");
-
+      setError("حدث خطأ أثناء إنشاء الطلب");
     }
   };
+  
 
   const dateSchema = z
     .custom<Date>(
@@ -98,8 +135,8 @@ function UploadTaskForm() {
     title: z.string().min(5, "عنوان الطلب يجب أن يحتوي على 5 أحرف على الأقل"),
     subject: z.array(z.string()).min(1, "يجب اختيار مادة واحدة على الأقل"),
     description: z.string().optional(),
-    files: z.array(z.any()).min(1, "يجب رفع ملف واحد على الأقل"), // For new file uploads
-    fileUrls: z.array(z.string()).optional(), // For existing URLs from Supabase
+    files: z.array(z.any()).min(1, "يجب رفع ملف واحد على الأقل"), 
+    fileUrls: z.array(z.string()).optional(), 
     deadline: dateSchema,
   });
 
@@ -111,8 +148,8 @@ function UploadTaskForm() {
       title: "",
       subject: [],
       description: "",
-      files: [], // Initialize as empty array for new files
-      fileUrls: [], // Initialize as empty array for URLs
+      files: [], 
+      fileUrls: [], 
       deadline: new Date(),
     },
   });
@@ -265,10 +302,25 @@ function UploadTaskForm() {
                       (اختياري)
                     </h1>
                   </div>
-                  <Textarea
-                    placeholder="الرجاء كتابة جميع التفاصيل والمتطلبات الخاصة بالمشروع هنا."
-                    className="min-h-32 max-h-40 w-full resize-vertical"
-                    id="message"
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem className="h-full">
+                        <FormControl className="h-full">
+                          <div className="h-full w-full p-4">
+                            <Textarea
+                              value={field.value || ""}
+                              onChange={field.onChange}
+                              placeholder="الرجاء كتابة جميع التفاصيل والمتطلبات الخاصة بالمشروع هنا."
+                              className="min-h-32 max-h-40 w-full resize-vertical"
+                              id="message"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
 

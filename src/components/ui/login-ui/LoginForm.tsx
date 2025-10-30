@@ -1,5 +1,10 @@
 "use client";
-import React, { useState, useCallback, startTransition } from "react";
+import React, {
+  useState,
+  useCallback,
+  startTransition,
+  useTransition,
+} from "react";
 import Stepper, { Step } from "./Stepper";
 import { Input } from "../input";
 import ReactCountryFlag from "react-country-flag";
@@ -36,6 +41,7 @@ function LoginForm() {
   const [loginError, setLoginError] = useState<string | undefined>("");
   const [signInError, setSignInError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
+  const [isPending, startTransition] = useTransition();
 
   const emailForm = useForm<z.infer<typeof EmailCheckSchema>>({
     resolver: zodResolver(EmailCheckSchema),
@@ -85,7 +91,7 @@ function LoginForm() {
     });
   };
 
-  // User submission 
+  // User submission
   const onSignInSubmit = async (values: z.infer<typeof SignInSchema>) => {
     setSignInError("");
     setSuccess("");
@@ -234,7 +240,7 @@ function LoginForm() {
 
   return (
     <div
-      className="dark:bg-neutral-950 overflow-hidden h-screen"
+      className="dark:bg-neutral-950 flex justify-center items-center overflow-hidden h-screen mx-auto my-auto"
       onKeyDown={handleKeyDown}
     >
       <Stepper
@@ -263,15 +269,16 @@ function LoginForm() {
       >
         <Step>
           <h2 className="text-lg font-semibold mb-2">ادخل بريدك الإلكتروني</h2>
-
           <Form {...emailForm}>
             <FormField
+              disabled={isPending}
               control={emailForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Input
+                      disabled={isPending}
                       placeholder="example@email.com"
                       type="email"
                       {...field}
@@ -308,6 +315,7 @@ function LoginForm() {
                     أدخل كلمة المرور لتسجيل الدخول لـ: {emailChecked}
                   </h2>
                   <FormField
+                    disabled={isPending}
                     control={loginForm.control}
                     name="password"
                     render={({ field }) => (
@@ -348,6 +356,7 @@ function LoginForm() {
                   </h2>
                   <div className="flex flex-col w-full">
                     <FormField
+                      disabled={isPending}
                       control={signInForm.control}
                       name="name"
                       render={({ field }) => (
@@ -365,6 +374,7 @@ function LoginForm() {
                     />
 
                     <FormField
+                      disabled={isPending}
                       control={signInForm.control}
                       name="phone"
                       render={({ field }) => (
@@ -404,6 +414,7 @@ function LoginForm() {
                     />
 
                     <FormField
+                      disabled={isPending}
                       control={signInForm.control}
                       name="password"
                       render={({ field }) => {

@@ -13,29 +13,6 @@ interface Session {
   expires: string;
 }
 
-const stats = [
-  {
-    label: "طلبات بانتظار المراجعة",
-    count: 5,
-    color: "border-4  border-white/40 bg-black/70",
-  },
-  {
-    label: "طلبات قيد العمل عليها",
-    count: 3,
-    color: "border-4  border-white/40 bg-black/70",
-  },
-  {
-    label: "طلبات معلقة",
-    count: 2,
-    color: "border-4 border-white/40 bg-black/70",
-  },
-  {
-    label: "طلبات مكتملة",
-    count: 8,
-    color: "border-4  border-white/40 bg-black/70",
-  },
-];
-
 function HomePage({ session }: { session: Session | null }) {
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -79,22 +56,6 @@ function HomePage({ session }: { session: Session | null }) {
           <p className="text-lg sm:text-xl mt-4 max-w-xl text-gray-600 dark:text-gray-300 leading-relaxed">
             سعيدون بوجودك معنا. نحن هنا لمساعدتك في رحلتك التعليمية
           </p>
-
-
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6 w-full max-w-5xl">
-
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className={`flex flex-col items-center justify-center p-6 rounded-2xl shadow-lg ${stat.color} text-white`}
-              >
-                <span className="text-3xl font-bold">{stat.count}</span>
-                <span className="mt-2 text-center text-sm font-medium">
-                  {stat.label}
-                </span>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </div>

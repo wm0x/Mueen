@@ -58,11 +58,13 @@ model Order {
   createdAt       DateTime  @default(now())
   deadline        DateTime? 
   isAdminViewed   Boolean   @default(false) 
+  isDeleted       Boolean   @default(false)
 
   userId          String
   user            User      @relation(fields: [userId], references: [id])
-  orderTracking        OrderTracking[]
+  orderTracking   OrderTracking[]
 }
+
 
 //تجيب كل الأحداث المرتبطة بطلب معين بالـ orderId وترتبها حسب createdAt 
 model OrderTracking {

@@ -11,104 +11,48 @@ import {
   IoHourglassOutline,
   IoClose,
   IoWalletOutline,
-  IoChatbubbleEllipsesOutline,
-  IoInformationCircleOutline,
   IoCloseCircleOutline,
+  IoTrashOutline,
+  IoPricetagOutline,
+  IoRocketOutline,
+  IoTimeOutline, // 💡 أيقونة جديدة لسجل التتبع
 } from "react-icons/io5";
+
+// 💡 واجهة حدث التتبع
+interface TrackingEvent {
+    event: string;
+    description: string | null;
+    createdAt: string;
+}
 
 interface Card {
   id: string;
   title: string;
   description: string;
-  status: "معلق" | "قيد المعالجة" | "بانتظار الدفع" | "مكتمل" | "مرفوض";
+  status:
+    | "معلق"
+    | "قيد المعالجة"
+    | "بانتظار الدفع"
+    | "مكتمل"
+    | "مرفوض"
+    | "جاري العمل عليه";
   createdAt: string;
   isAdminViewed: boolean;
   price: number | null;
   priceDetails: string | null;
   rejectionReason: string | null;
   files: { name: string; link: string }[];
+  deadline: string | null;
+  subject: string[];
+  // 💡 إضافة سجل التتبع (Log)
+  trackingLog: TrackingEvent[]; 
 }
 
-// 📌 بيانات البطاقات التجريبية
-const cards: Card[] = [
-  {
-    id: "ORD001",
-    title: "طلب ترجمة مستعجلة للوثائق",
-    description:
-      "ترجمة معتمدة لشهادة جامعية وكشف درجات للتقديم على منحة دراسية في الخارج.",
-    status: "بانتظار الدفع",
-    createdAt: "2025-10-28T10:30:00Z",
-    isAdminViewed: true,
-    price: 450.75,
-    priceDetails:
-      "رسوم ترجمة الشهادة (250 ريال) + رسوم ترجمة الكشف (150 ريال) + رسوم خدمة مستعجلة (50.75 ريال).",
-    rejectionReason: null,
-    files: [
-      { name: "University_Certificate.pdf", link: "#" },
-      { name: "Transcript_Record.pdf", link: "#" },
-    ],
-  },
-  {
-    id: "ORD002",
-    title: "طلب استشارة قانونية تجارية",
-    description:
-      "استشارة بخصوص صياغة عقد شراكة جديد بين طرفين في مجال التقنية المالية.",
-    status: "مكتمل",
-    createdAt: "2025-10-25T14:45:00Z",
-    isAdminViewed: true,
-    price: 0,
-    priceDetails: null,
-    rejectionReason: null,
-    files: [{ name: "Draft_Partnership_Agreement.docx", link: "#" }],
-  },
-  {
-    id: "ORD003",
-    title: "طلب تصميم هوية بصرية جديدة",
-    description:
-      "تصميم شعار متكامل وكافة العناصر البصرية لشركة ناشئة متخصصة في الذكاء الاصطناعي.",
-    status: "قيد المعالجة",
-    createdAt: "2025-10-20T09:00:00Z",
-    isAdminViewed: true,
-    price: 1500,
-    priceDetails: "تم دفع الدفعة الأولى. الدفعة النهائية: 1500 ريال.",
-    rejectionReason: null,
-    files: [{ name: "Brand_Brief.pdf", link: "#" }],
-  },
-  {
-    id: "ORD004",
-    title: "طلب تعديل ملف تعريفي",
-    description:
-      "تحديث ملف تعريف السيرة الذاتية ليتناسب مع متطلبات وظيفة مدير مشروع تقني.",
-    status: "مرفوض",
-    createdAt: "2025-10-18T11:20:00Z",
-    isAdminViewed: true,
-    price: null,
-    priceDetails: null,
-    rejectionReason:
-      "الطلب خارج نطاق خدماتنا المتخصصة حاليًا. نعتذر عن عدم إمكانية التنفيذ.",
-    files: [{ name: "Old_CV.pdf", link: "#" }],
-  },
-  {
-    id: "ORD005",
-    title: "طلب تحليل بيانات إحصائية",
-    description:
-      "تحليل مجموعة بيانات لدراسة أكاديمية حول تأثير وسائل التواصل الاجتماعي على الشباب.",
-    status: "معلق",
-    createdAt: "2025-10-15T16:00:00Z",
-    isAdminViewed: false,
-    price: 0,
-    priceDetails: null,
-    rejectionReason: null,
-    files: [
-      { name: "Raw_Data_Set.xlsx", link: "#" },
-      { name: "Study_Protocol.pdf", link: "#" },
-    ],
-  },
-];
-// const cards: Card[] = [];
+const cards: Card[] = [];
 
 // Hijri date
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "غير محدد";
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "long",
@@ -120,7 +64,14 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("ar-SA", options);
 };
 
-// deisgn of ryal 
+// تنسيق تاريخ ووقت التتبع
+const formatTrackingDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const datePart = date.toLocaleDateString("ar-SA", { year: "numeric", month: "numeric", day: "numeric" });
+    const timePart = date.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return `${datePart}، ${timePart}`;
+};
+
 const formatPrice = (price: number) => {
   return price.toLocaleString("ar-SA", {
     style: "currency",
@@ -135,6 +86,8 @@ const getStatusColor = (status: Card["status"]) => {
       return "bg-amber-500/90";
     case "قيد المعالجة":
       return "bg-blue-500/90";
+    case "جاري العمل عليه":
+      return "bg-orange-500/90";
     case "بانتظار الدفع":
       return "bg-purple-600/90";
     case "مكتمل":
@@ -146,10 +99,100 @@ const getStatusColor = (status: Card["status"]) => {
   }
 };
 
+
 export function ExpandableCardDemo() {
   const [active, setActive] = useState<Card | boolean | null>(null);
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
+
+  const [cards, setCards] = useState<Card[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 💡 NEW FUNCTION: Handle Delete
+  const handleDelete = async () => {
+    const activeCard = active as Card;
+    if (!activeCard) return;
+
+    if (
+      !window.confirm(
+        "هل أنت متأكد من أنك تريد حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/orders/delete-order`, {
+        method: "DELETE", 
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ orderId: activeCard.id }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setCards((prev) => prev.filter((card) => card.id !== activeCard.id));
+        setActive(null);
+        alert(data.success || "تم حذف الطلب بنجاح.");
+      } else {
+        alert(`فشل في حذف الطلب: ${data.error || "حدث خطأ غير معروف"}`);
+      }
+    } catch (err) {
+      console.error("Delete Error:", err);
+      alert("حدث خطأ أثناء الاتصال بالخادم لحذف الطلب.");
+    }
+  };
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch("/api/orders/get-orders");
+
+        if (!res.ok) {
+          console.log("API Response:", await res.text());
+          return;
+        }
+
+        const data = await res.json();
+
+        // 🚀 تحديث جلب البيانات لضم سجل التتبع
+        const mapped = data.map((o: any) => ({
+          id: o.id,
+          title: o.title,
+          description: o.description,
+          status: o.status,
+          createdAt: o.createdAt,
+          isAdminViewed: o.isAdminViewed,
+          price: o.price,
+          priceDetails: o.priceDetails,
+          rejectionReason: o.rejectionReason,
+          files:
+            o.filesUrls?.map((url: string) => ({
+              name: url.split("/").pop(),
+              link: url,
+            })) ?? [],
+          deadline: o.deadline || null,
+          subject: o.subject || [],
+          // 💡 جلب سجل التتبع
+          trackingLog: o.orderTracking?.map((t: any) => ({
+            event: t.event,
+            description: t.description || null,
+            createdAt: t.createdAt,
+          })) || [],
+        }));
+
+        setCards(mapped);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -169,18 +212,14 @@ export function ExpandableCardDemo() {
   const isPaymentPending =
     activeCard &&
     activeCard.status === "بانتظار الدفع" &&
-    activeCard.price !== null; 
+    activeCard.price !== null;
 
   const isRejected = activeCard && activeCard.status === "مرفوض";
 
-  // here check if user not have any order 
   const isEmpty = cards.length === 0;
 
   return (
-    <div
-      dir="rtl"
-      className=" py-8 px-2 md:py-12 md:px-4  "
-    >
+    <div dir="rtl" className=" py-8 px-2 md:py-12 md:px-4  ">
       <AnimatePresence>
         {activeCard && (
           <motion.div
@@ -208,7 +247,6 @@ export function ExpandableCardDemo() {
               </button>
 
               <div className="relative p-6 md:p-10 space-y-4 md:space-y-6 bg-gradient-to-br from-indigo-50/50 to-white dark:from-neutral-800/50 dark:to-neutral-900 pb-10 ">
-                {/* Status Badge */}
                 <div className="absolute top-4 left-4 md:top-6 md:left-6">
                   <span
                     className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-white font-semibold text-xs md:text-sm shadow-xl backdrop-blur-sm ${getStatusColor(
@@ -219,7 +257,6 @@ export function ExpandableCardDemo() {
                   </span>
                 </div>
 
-                {/* Icon & Title */}
                 <div className="flex flex-col items-center justify-center pt-8 md:pt-0">
                   <div className="flex items-center justify-center w-20 h-20 md:w-24 md:h-24 bg-white dark:bg-neutral-800 rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl border border-gray-200 dark:border-neutral-700/50 ring-4 ring-indigo-100/50 dark:ring-neutral-700/50">
                     {activeCard.status === "مكتمل" ? (
@@ -247,7 +284,6 @@ export function ExpandableCardDemo() {
                   </div>
                 </div>
 
-                {/* Important Details Bar */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-100/80 dark:bg-neutral-800/80 rounded-xl md:rounded-2xl p-3 md:p-4 border border-gray-200 dark:border-neutral-700/50 shadow-inner space-y-2 sm:space-y-0">
                   <div className="flex items-center gap-2 text-xs md:text-sm text-gray-600 dark:text-gray-300">
                     <IoCalendarOutline className="size-4 md:size-5 text-indigo-500" />
@@ -273,8 +309,9 @@ export function ExpandableCardDemo() {
                 </div>
               </div>
 
+              {/* 🚫 تم إزالة: PROGRESS BAR SECTION */}
+
               <div className="p-4 md:p-8 space-y-4 md:space-y-8">
-                {/* 🛑 Rejection Section */}
                 {isRejected && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -299,7 +336,85 @@ export function ExpandableCardDemo() {
                   </motion.div>
                 )}
 
-                {/* 💳 Payment Section */}
+                {(activeCard.deadline || activeCard.subject.length > 0) && (
+                  <div className="bg-gray-50 dark:bg-neutral-800 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-gray-200 dark:border-neutral-700/50 space-y-4">
+                    <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                      <IoHourglassOutline className="size-4 md:size-5 text-indigo-500" />
+                      تفاصيل الطلب الأساسية
+                    </h4>
+
+                    {activeCard.deadline && (
+                      <div className="flex items-center justify-between py-2 border-b border-gray-100 dark:border-neutral-700/50 last:border-b-0">
+                        <span className="font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                          <IoCalendarOutline className="size-4 text-orange-500" />
+                          تاريخ التسليم النهائي:
+                        </span>
+                        <span className="font-extrabold text-sm md:text-base text-black dark:text-white">
+                          {formatDate(activeCard.deadline)}
+                        </span>
+                      </div>
+                    )}
+
+                    {activeCard.subject.length > 0 && (
+                      <div className="pt-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-300 block mb-2">
+                          المواد:
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {activeCard.subject.map((sub, i) => (
+                            <span
+                              key={i}
+                              className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold rounded-full"
+                            >
+                              {sub}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* 🧭 NEW SECTION: سجل التتبع (Order Tracking Log) */}
+                {activeCard.trackingLog.length > 0 && (
+                    <div className="bg-gray-50 dark:bg-neutral-800 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-gray-200 dark:border-neutral-700/50 space-y-4">
+                        <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white mb-3 flex items-center gap-2 border-b pb-2">
+                            <IoTimeOutline className="size-5 text-blue-500" />
+                            سجل تحديثات الطلب ({activeCard.trackingLog.length})
+                        </h4>
+                        
+                        <div className="relative border-r-2 border-blue-200 dark:border-neutral-700 pr-4 space-y-6">
+                            {/* Sort log by newest first */}
+                            {activeCard.trackingLog.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((log, index) => (
+                                <div key={index} className="relative">
+                                    {/* Timeline dot */}
+                                    <span className="absolute top-1 -right-5 w-3 h-3 bg-blue-500 dark:bg-blue-400 rounded-full ring-4 ring-blue-500/20 dark:ring-blue-400/20" />
+                                    
+                                    <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                                        {log.event}
+                                    </p>
+                                    {log.description && (
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                                            {log.description}
+                                        </p>
+                                    )}
+                                    <time className="text-xs text-gray-400 dark:text-gray-500 block">
+                                        {formatTrackingDate(log.createdAt)}
+                                    </time>
+                                </div>
+                            ))}
+                        </div>
+                        {/* Always include the creation date as the first (last in reverse list) entry if API doesn't guarantee it */}
+                        {activeCard.trackingLog.length === 0 && (
+                             <div className="text-sm text-gray-500 dark:text-gray-400">
+                                تم إنشاء الطلب في: {formatTrackingDate(activeCard.createdAt)}
+                             </div>
+                        )}
+                    </div>
+                )}
+                {/* END Tracking Log */}
+
+
                 {isPaymentPending && activeCard.price !== null && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -309,7 +424,6 @@ export function ExpandableCardDemo() {
                     className="bg-neutral-100 dark:bg-neutral-800 rounded-2xl md:rounded-3xl p-5 border border-neutral-300 dark:border-neutral-700 shadow-xl shadow-neutral-500/10"
                   >
                     <div className="flex flex-col gap-3 border-b border-neutral-300 dark:border-neutral-700 pb-4 mb-4">
-                      {/* العنوان والسعر في صف واحد */}
                       <div className="flex items-center justify-between w-full">
                         <h4 className="font-extrabold text-xl text-gray-800 dark:text-white flex items-center gap-2">
                           <IoWalletOutline className="size-6 text-neutral-600 dark:text-neutral-300" />
@@ -320,7 +434,6 @@ export function ExpandableCardDemo() {
                         </span>
                       </div>
 
-                      {/* تفاصيل التسعير - دائماً مرئية على الموبايل */}
                       <div className="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-3 border border-neutral-200 dark:border-neutral-700">
                         <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">
                           <span className="font-bold text-neutral-700 dark:text-neutral-300 ml-1">
@@ -340,7 +453,7 @@ export function ExpandableCardDemo() {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Link
                         href={`/payment/checkout?order=${activeCard.id}`}
-                        className="group relative flex-1 bg-gradient-to-r from-neutral-800 to-black text-white text-center py-3 rounded-xl font-bold text-sm shadow-lg shadow-neutral-900/30 hover:shadow-neutral-900/50 transition-all duration-300"
+                        className="group relative flex-1 bg-gradient-to-r from-stone-700 via-neutral-800 to-stone-900 text-white text-center py-3 rounded-xl font-bold text-sm shadow-lg shadow-stone-800/40 hover:shadow-stone-900/60 transition-all duration-300  transform border border-stone-600/30"
                       >
                         <div className="relative flex items-center justify-center gap-2">
                           <IoWalletOutline className="size-5" />
@@ -349,6 +462,31 @@ export function ExpandableCardDemo() {
                       </Link>
                     </div>
                   </motion.div>
+                )}
+
+                {/* 💸 Price Detail for non-payment-pending statuses (Optional) */}
+                {activeCard.price !== null && !isPaymentPending && (
+                  <div className="bg-gray-50 dark:bg-neutral-800 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-gray-200 dark:border-neutral-700/50 space-y-3">
+                    <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white flex items-center gap-2 border-b pb-2">
+                      <IoPricetagOutline className="size-4 md:size-5 text-emerald-600" />
+                      تفاصيل التسعير
+                    </h4>
+                    <div className="flex items-center justify-between">
+                      <span className="font-extrabold text-sm text-gray-700 dark:text-gray-300">
+                        قيمة الطلب النهائية:
+                      </span>
+                      <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                        {formatPrice(activeCard.price)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 pt-2 border-t border-gray-100 dark:border-neutral-700/50">
+                      <span className="font-bold text-neutral-700 dark:text-neutral-300 ml-1">
+                        الشرح:
+                      </span>
+                      {activeCard.priceDetails ||
+                        "لا توجد تفاصيل تسعير إضافية."}
+                    </p>
+                  </div>
                 )}
 
                 {!isRejected && (
@@ -410,15 +548,33 @@ export function ExpandableCardDemo() {
                     </Link>
                   </div>
                 )}
+
+                {activeCard.status === "معلق" && (
+                  <div className="pt-4 md:pt-6">
+                    <button
+                      onClick={handleDelete}
+                      className="group relative flex w-full justify-center items-center gap-2 bg-red-500/5 backdrop-blur-sm border border-red-600/70 text-white text-center py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg 
+               hover:border-red-500 transition-all duration-300 hover:bg-red-500/5 cursor-pointer"
+                    >
+                      <div className="absolute inset-0 rounded-xl md:rounded-2xl bg-red-500/0 group-hover:bg-red-500/5 transition-all duration-300"></div>
+
+                      <IoTrashOutline className="size-5 md:size-6 text-red-500 relative z-10" />
+                      <span className="relative z-10">حذف الطلب</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      {/* if cards empty */}
       <div className="max-w-7xl mx-auto my-auto pb-10">
-        {isEmpty ? (
+        {loading ? (
+          <div className="w-full text-center justify-center">
+            <p>جاري التحميل...</p>
+          </div>
+        ) : isEmpty ? (
           <div className="flex flex-col items-center justify-center   ">
             <p className="text-xl font-bold text-gray-700 dark:text-gray-100 mb-2">
               لا توجد طلبات لعرضها حالياً
@@ -478,6 +634,7 @@ export function ExpandableCardDemo() {
                   </div>
 
                   <div className="p-5 pt-4 border-t border-gray-100 dark:border-neutral-700/50 space-y-3">
+                    {/* 💰 Price Display: Only if status is 'بانتظار الدفع' (Awaiting Payment) */}
                     {card.status === "بانتظار الدفع" && card.price !== null && (
                       <div className="flex items-center justify-between text-sm font-extrabold text-purple-600 dark:text-purple-400">
                         <div className="flex items-center gap-1">
@@ -486,6 +643,31 @@ export function ExpandableCardDemo() {
                         </div>
                         <span className="text-base">
                           {formatPrice(card.price)}
+                        </span>
+                      </div>
+                    )}
+
+                    {card.deadline && (
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-1">
+                          <IoCalendarOutline className="size-4 text-orange-500" />
+                          <span>التسليم:</span>
+                        </div>
+                        <span className="font-medium">
+                          {new Date(card.deadline).toLocaleDateString("ar-SA")}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* 💡 SMALL CARD PROGRESS DISPLAY: Now showing log existence instead of percentage */}
+                    {card.trackingLog && card.trackingLog.length > 0 && (
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-1 text-blue-500 dark:text-blue-400">
+                          <IoTimeOutline className="size-4" />
+                          <span>آخر تحديث:</span>
+                        </div>
+                        <span className="font-medium text-blue-500 dark:text-blue-400">
+                          {formatDate(card.trackingLog[0]?.createdAt)}
                         </span>
                       </div>
                     )}
@@ -516,7 +698,7 @@ export function ExpandableCardDemo() {
                         <IoHourglassOutline className="size-4" />
                       )}
                       <span>
-                        {card.isAdminViewed ? "مراجَع" : "قيد الانتظار"}
+                        {card.isAdminViewed ? "تمت المراجعه" : "في انتظار المراجعة "}
                       </span>
                     </div>
                   </div>
