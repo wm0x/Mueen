@@ -38,7 +38,7 @@ function OrdersPage() {
           <Link href="/dashboard/orders/history" className="w-full">
             <MainMenusGradientCard
               className="p-4 cursor-pointer relative"
-              description="عرض وتفاصيل جميع الطلبات السابقة"
+              description="عرض جميع الطلبات السابقة"
               title="الطلبات السابقة"
             >
               <div className="flex items-center mx-auto my-auto p-4 bg-neutral-400/15 rounded-xl w-fit justify-center">
@@ -61,11 +61,11 @@ function OrdersPage() {
             </MainMenusGradientCard>
           </Link>
 
-          <Link
-            href="/dashboard/orders/refund"
-            className="w-full md:col-span-2 md:flex md:justify-center"
-          >
-            <div className="md:col-span-2 md:flex md:justify-center md:mb-0 mb-16">
+          <div className="md:col-span-2 md:flex md:justify-center md:mb-0 mb-16">
+            <Link
+              href="/dashboard/orders/refund"
+              className=" md:col-span-2 md:flex md:justify-center"
+            >
               <MainMenusGradientCard
                 className="p-4 cursor-pointer"
                 description="تقديم طلب استرداد مبلغ أو اعتراض"
@@ -75,8 +75,8 @@ function OrdersPage() {
                   <RiRefund2Fill className="size-6 text-neutral-400/80" />
                 </div>
               </MainMenusGradientCard>
-            </div>
-          </Link>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
