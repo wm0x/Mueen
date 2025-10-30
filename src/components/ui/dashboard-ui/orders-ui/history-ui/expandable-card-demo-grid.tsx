@@ -105,10 +105,9 @@ const cards: Card[] = [
     ],
   },
 ];
-// يمكنك تفريغ المصفوفة لجعل حالة عدم وجود طلبات تظهر
 // const cards: Card[] = [];
 
-// وظيفة لتنسيق التاريخ
+// Hijri date
 const formatDate = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
@@ -121,7 +120,7 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("ar-SA", options);
 };
 
-// وظيفة لتنسيق السعر بالريال السعودي
+// deisgn of ryal 
 const formatPrice = (price: number) => {
   return price.toLocaleString("ar-SA", {
     style: "currency",
@@ -130,7 +129,6 @@ const formatPrice = (price: number) => {
   });
 };
 
-// دالة لتحديد لون الشارة
 const getStatusColor = (status: Card["status"]) => {
   switch (status) {
     case "معلق":
@@ -144,13 +142,11 @@ const getStatusColor = (status: Card["status"]) => {
     case "مرفوض":
       return "bg-red-600/90";
     default:
-      // هذا الفرع لن يتم الوصول إليه غالبًا بسبب تعريف النوع
       return "bg-neutral-500/80";
   }
 };
 
 export function ExpandableCardDemo() {
-  // 📌 تحديث نوع الـ state ليقبل إما Card، أو boolean، أو null
   const [active, setActive] = useState<Card | boolean | null>(null);
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
@@ -159,7 +155,6 @@ export function ExpandableCardDemo() {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setActive(false);
     }
-    // 📌 فحص النوع قبل محاولة الوصول إلى خصائص البطاقة
     if (active && typeof active === "object")
       document.body.style.overflow = "hidden";
     else document.body.style.overflow = "auto";
@@ -169,24 +164,22 @@ export function ExpandableCardDemo() {
 
   useOutsideClick(ref as any, () => setActive(null));
 
-  // 📌 فحص النوع للحصول على البيانات النشطة
   const activeCard = active && typeof active === "object" ? active : null;
 
-  // تحديد ما إذا كانت حالة الطلب "بانتظار الدفع" أو "مرفوض"
   const isPaymentPending =
     activeCard &&
     activeCard.status === "بانتظار الدفع" &&
-    activeCard.price !== null; // يجب أن يكون السعر موجودًا
+    activeCard.price !== null; 
 
   const isRejected = activeCard && activeCard.status === "مرفوض";
 
-  // 🚀 حالة عدم وجود طلبات
+  // here check if user not have any order 
   const isEmpty = cards.length === 0;
 
   return (
     <div
       dir="rtl"
-      className=" py-8 px-2 md:py-12 md:px-4 bg-gray-50 dark:bg-neutral-950 "
+      className=" py-8 px-2 md:py-12 md:px-4  "
     >
       <AnimatePresence>
         {activeCard && (

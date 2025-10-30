@@ -54,7 +54,6 @@ function LoginForm() {
     },
   });
 
-  // 3. Sign In Form (Step 2 - New)
   const signInForm = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
     defaultValues: {
@@ -86,13 +85,13 @@ function LoginForm() {
     });
   };
 
+  // User submission 
   const onSignInSubmit = async (values: z.infer<typeof SignInSchema>) => {
     setSignInError("");
     setSuccess("");
     setLoading(true);
 
     try {
-      // 1. إنشاء المستخدم (API Route)
       const res = await fetch("/api/users/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,24 +100,19 @@ function LoginForm() {
 
       const data = await res.json();
 
-      // 🚨 معالجة أخطاء الخادم (مثل البريد/الهاتف مسجلان بالفعل)
       if (!res.ok || data?.error) {
         setSignInError(data?.error || "حدث خطأ أثناء إنشاء الحساب.");
         return;
       }
 
-      // ✅ نجاح التسجيل: الآن نحاول تسجيل الدخول تلقائيًا باستخدام Server Action
       const loginData = await login({
         email: values.email,
         password: values.password,
       });
 
       if (loginData?.success) {
-        // 2. نجاح الدخول: توجيه المستخدم
         router.push(loginData.redirectUrl);
       } else {
-        // 3. فشل الدخول التلقائي بعد التسجيل (عرض خطأ الخادم أو رسالة افتراضية)
-        // 💡 لا حاجة لتصفير الخطأ مرة أخرى. نستخدم setError مباشرة.
         setSignInError(
           loginData?.error || "تم إنشاء الحساب، ولكن فشل تسجيل الدخول التلقائي."
         );
@@ -240,7 +234,7 @@ function LoginForm() {
 
   return (
     <div
-      className="dark:bg-neutral-950 overflow-hidden"
+      className="dark:bg-neutral-950 overflow-hidden h-screen"
       onKeyDown={handleKeyDown}
     >
       <Stepper
