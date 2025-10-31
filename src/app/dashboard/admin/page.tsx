@@ -3,11 +3,19 @@ import FollowCursorHideCursor from "@/hooks/mouse/mouse";
 import { cn } from "@/lib/utils";
 import React, { useEffect } from "react";
 import { MainMenusGradientCard } from "../../../components/ui/dashboard-ui/orders-ui/GradientCard";
-import { BringToFront, EditIcon, HistoryIcon, MousePointer } from "lucide-react";
+import {
+  BringToFront,
+  EditIcon,
+  HistoryIcon,
+  MousePointer,
+} from "lucide-react";
 import { RiRefund2Fill, RiTimeLine } from "react-icons/ri";
 import Link from "next/link";
 import { PiQuestionMarkBold } from "react-icons/pi";
-import { IoBagCheckOutline, IoCheckmarkDoneCircleOutline } from "react-icons/io5";
+import {
+  IoBagCheckOutline,
+  IoCheckmarkDoneCircleOutline,
+} from "react-icons/io5";
 import { FaRegThumbsUp } from "react-icons/fa";
 
 function OrdersPage() {
@@ -38,7 +46,7 @@ function OrdersPage() {
       </div>
       <div className="flex items-center justify-center w-full mb-6" dir="rtl">
         <div className="grid relative p-2 grid-cols-1 w-3/6 gap-12 md:grid-cols-2 mx-auto my-auto ">
-          <Link href="/dashboard/orders/history" className="w-full">
+          <Link href="/dashboard/admin/orders" className="w-full">
             <MainMenusGradientCard
               className="p-4 cursor-pointer relative"
               description="عرض جميع الطلبات المتاحة الان فالنظام "
@@ -50,18 +58,14 @@ function OrdersPage() {
             </MainMenusGradientCard>
           </Link>
 
-          <Link
-            href="/dashboard/orders/refund"
-            className=" "
-          >
+          <Link href="/dashboard/accepted-requests" className=" ">
             <MainMenusGradientCard
               className="p-4 cursor-pointer"
-              description="طلباتك"
-              title=" الطلبات التي قمت بقبولها "
+              description="عرض الطلبات التي تم قبولها ومعالجتها من قبلك"
+              title="الطلبات المقبولة"
             >
               <div className="flex items-center mx-auto my-auto p-4 gap-3 bg-neutral-400/15 rounded-xl w-fit justify-center">
                 <FaRegThumbsUp className="size-6 text-neutral-400/80" />
-
               </div>
             </MainMenusGradientCard>
           </Link>

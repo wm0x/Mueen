@@ -127,7 +127,7 @@ function UploadTaskForm() {
         return date >= now;
       },
       {
-        message: "التاريخ غير صحيح !!",
+        message: " لا يمكن ان يكون التاريخ قديم ",
       }
     );
 

@@ -25,16 +25,17 @@ model User {
   role          String   @default("customer")
 
   orders        Order[]
+  acceptedOrders Order[] @relation("AdminAcceptedOrders")
+
 }
 
 model OtpToken {
   id      String   @id @default(uuid())
-  // 💡 نستخدم email كعنصر رئيسي للبحث
   email   String   @unique 
   token   String
   expires DateTime
 
-  @@index([email]) // يسرّع عملية البحث في الرمز
+  @@index([email]) 
 }
 
 model PasswordResetToken {
@@ -46,24 +47,29 @@ model PasswordResetToken {
 
 
 model Order {
-  id              String    @id @default(cuid())
+  id              String     @id @default(cuid())
   title           String
   description     String?
-  status          String    @default("معلق") 
+  status          String     @default("قيد المعالجة") 
   price           Float?    
   priceDetails    String?   
   rejectionReason String?   
   filesUrls       String[]  
   subject         String[]  
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime   @default(now())
   deadline        DateTime? 
-  isAdminViewed   Boolean   @default(false) 
-  isDeleted       Boolean   @default(false)
+  isAdminViewed   Boolean    @default(false) 
+  isDeleted       Boolean    @default(false)
 
   userId          String
-  user            User      @relation(fields: [userId], references: [id])
-  orderTracking   OrderTracking[]
+  user            User       @relation(fields: [userId], references: [id])
+
+  acceptedByAdminId String?
+  acceptedByAdmin   User? @relation("AdminAcceptedOrders", fields: [acceptedByAdminId], references: [id])
+
+  orderTracking    OrderTracking[]
 }
+
 
 
 //تجيب كل الأحداث المرتبطة بطلب معين بالـ orderId وترتبها حسب createdAt 

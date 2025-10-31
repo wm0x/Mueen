@@ -15,24 +15,23 @@ import {
   IoTrashOutline,
   IoPricetagOutline,
   IoRocketOutline,
-  IoTimeOutline, // 💡 أيقونة جديدة لسجل التتبع
+  IoTimeOutline,
 } from "react-icons/io5";
 
-// 💡 واجهة حدث التتبع
 interface TrackingEvent {
-    event: string;
-    description: string | null;
-    createdAt: string;
+  event: string;
+  description: string | null;
+  createdAt: string;
 }
 
 interface Card {
   id: string;
   title: string;
   description: string;
-  status:
-    | "معلق"
-    | "قيد المعالجة"
+  status: // | "معلق"
+  | "قيد المعالجة"
     | "بانتظار الدفع"
+    | "قيد التنفيذ"
     | "مكتمل"
     | "مرفوض"
     | "جاري العمل عليه";
@@ -44,8 +43,7 @@ interface Card {
   files: { name: string; link: string }[];
   deadline: string | null;
   subject: string[];
-  // 💡 إضافة سجل التتبع (Log)
-  trackingLog: TrackingEvent[]; 
+  trackingLog: TrackingEvent[];
 }
 
 const cards: Card[] = [];
@@ -66,10 +64,18 @@ const formatDate = (dateString: string | null) => {
 
 // تنسيق تاريخ ووقت التتبع
 const formatTrackingDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const datePart = date.toLocaleDateString("ar-SA", { year: "numeric", month: "numeric", day: "numeric" });
-    const timePart = date.toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit", hour12: false });
-    return `${datePart}، ${timePart}`;
+  const date = new Date(dateString);
+  const datePart = date.toLocaleDateString("ar-SA", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
+  const timePart = date.toLocaleTimeString("ar-SA", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  return `${datePart}، ${timePart}`;
 };
 
 const formatPrice = (price: number) => {
@@ -82,11 +88,11 @@ const formatPrice = (price: number) => {
 
 const getStatusColor = (status: Card["status"]) => {
   switch (status) {
-    case "معلق":
-      return "bg-amber-500/90";
+    // case "معلق":
+    //   return "bg-amber-500/90";
     case "قيد المعالجة":
       return "bg-blue-500/90";
-    case "جاري العمل عليه":
+    case "قيد التنفيذ":
       return "bg-orange-500/90";
     case "بانتظار الدفع":
       return "bg-purple-600/90";
@@ -98,7 +104,6 @@ const getStatusColor = (status: Card["status"]) => {
       return "bg-neutral-500/80";
   }
 };
-
 
 export function ExpandableCardDemo() {
   const [active, setActive] = useState<Card | boolean | null>(null);
@@ -123,7 +128,7 @@ export function ExpandableCardDemo() {
 
     try {
       const res = await fetch(`/api/orders/delete-order`, {
-        method: "DELETE", 
+        method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
@@ -157,7 +162,6 @@ export function ExpandableCardDemo() {
 
         const data = await res.json();
 
-        // 🚀 تحديث جلب البيانات لضم سجل التتبع
         const mapped = data.map((o: any) => ({
           id: o.id,
           title: o.title,
@@ -175,12 +179,12 @@ export function ExpandableCardDemo() {
             })) ?? [],
           deadline: o.deadline || null,
           subject: o.subject || [],
-          // 💡 جلب سجل التتبع
-          trackingLog: o.orderTracking?.map((t: any) => ({
-            event: t.event,
-            description: t.description || null,
-            createdAt: t.createdAt,
-          })) || [],
+          trackingLog:
+            o.orderTracking?.map((t: any) => ({
+              event: t.event,
+              description: t.description || null,
+              createdAt: t.createdAt,
+            })) || [],
         }));
 
         setCards(mapped);
@@ -309,8 +313,6 @@ export function ExpandableCardDemo() {
                 </div>
               </div>
 
-              {/* 🚫 تم إزالة: PROGRESS BAR SECTION */}
-
               <div className="p-4 md:p-8 space-y-4 md:space-y-8">
                 {isRejected && (
                   <motion.div
@@ -374,46 +376,47 @@ export function ExpandableCardDemo() {
                     )}
                   </div>
                 )}
-                
-                {/* 🧭 NEW SECTION: سجل التتبع (Order Tracking Log) */}
-                {activeCard.trackingLog.length > 0 && (
-                    <div className="bg-gray-50 dark:bg-neutral-800 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-gray-200 dark:border-neutral-700/50 space-y-4">
-                        <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white mb-3 flex items-center gap-2 border-b pb-2">
-                            <IoTimeOutline className="size-5 text-blue-500" />
-                            سجل تحديثات الطلب ({activeCard.trackingLog.length})
-                        </h4>
-                        
-                        <div className="relative border-r-2 border-blue-200 dark:border-neutral-700 pr-4 space-y-6">
-                            {/* Sort log by newest first */}
-                            {activeCard.trackingLog.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((log, index) => (
-                                <div key={index} className="relative">
-                                    {/* Timeline dot */}
-                                    <span className="absolute top-1 -right-5 w-3 h-3 bg-blue-500 dark:bg-blue-400 rounded-full ring-4 ring-blue-500/20 dark:ring-blue-400/20" />
-                                    
-                                    <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
-                                        {log.event}
-                                    </p>
-                                    {log.description && (
-                                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                                            {log.description}
-                                        </p>
-                                    )}
-                                    <time className="text-xs text-gray-400 dark:text-gray-500 block">
-                                        {formatTrackingDate(log.createdAt)}
-                                    </time>
-                                </div>
-                            ))}
-                        </div>
-                        {/* Always include the creation date as the first (last in reverse list) entry if API doesn't guarantee it */}
-                        {activeCard.trackingLog.length === 0 && (
-                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                                تم إنشاء الطلب في: {formatTrackingDate(activeCard.createdAt)}
-                             </div>
-                        )}
-                    </div>
-                )}
-                {/* END Tracking Log */}
 
+                {activeCard.trackingLog.length > 0 && (
+                  <div className="bg-gray-50 dark:bg-neutral-800 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-gray-200 dark:border-neutral-700/50 space-y-4">
+                    <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white mb-3 flex items-center gap-2 border-b pb-2">
+                      <IoTimeOutline className="size-5 text-orange-500" />
+                      سجل تحديثات الطلب ({activeCard.trackingLog.length})
+                    </h4>
+
+                    <div className="relative border-r-2 border-blue-200 dark:border-neutral-700 pr-4 space-y-6">
+                      {/** here sort the tracking of order */}
+                      {activeCard.trackingLog
+                        .sort(
+                          (a, b) =>
+                            new Date(b.createdAt).getTime() -
+                            new Date(a.createdAt).getTime()
+                        )
+                        .map((log, index) => (
+                          <div key={index} className="relative">
+                            <span className="absolute top-1 -right-5.5 w-3 h-3 bg-orange-500 dark:bg-[#E85002] rounded-full ring-4 ring-blue-500/20 dark:ring-neutral-400/20" />
+                            <p className="font-semibold text-sm text-gray-900 dark:text-white mb-1">
+                              {log.event}
+                            </p>
+                            {log.description && (
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                                {log.description}
+                              </p>
+                            )}
+                            <time className="text-xs text-gray-400 dark:text-gray-500 block">
+                              {formatTrackingDate(log.createdAt)}
+                            </time>
+                          </div>
+                        ))}
+                    </div>
+                    {activeCard.trackingLog.length === 0 && (
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        تم إنشاء الطلب في:{" "}
+                        {formatTrackingDate(activeCard.createdAt)}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {isPaymentPending && activeCard.price !== null && (
                   <motion.div
@@ -451,20 +454,44 @@ export function ExpandableCardDemo() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-3">
-                      <Link
-                        href={`/payment/checkout?order=${activeCard.id}`}
-                        className="group relative flex-1 bg-gradient-to-r from-stone-700 via-neutral-800 to-stone-900 text-white text-center py-3 rounded-xl font-bold text-sm shadow-lg shadow-stone-800/40 hover:shadow-stone-900/60 transition-all duration-300  transform border border-stone-600/30"
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(
+                              "/api/payment/order/pay-order",
+                              {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  orderId: activeCard.id,
+                                }),
+                              }
+                            );
+
+                            const data = await res.json();
+
+                            if (data.error) {
+                              return alert(data.error);
+                            }
+
+                            // here i will add toast notification
+                            window.location.reload();
+                          } catch (err) {
+                            console.error(err);
+                            alert("حدث خطأ أثناء إتمام الدفع");
+                          }
+                        }}
+                        className="group relative flex-1 bg-gradient-to-r from-stone-700 via-neutral-800 to-stone-900 text-white text-center py-3 rounded-xl font-bold text-sm shadow-lg shadow-stone-800/40 hover:shadow-stone-900/60 transition-all duration-300 transform border border-stone-600/30"
                       >
                         <div className="relative flex items-center justify-center gap-2">
                           <IoWalletOutline className="size-5" />
-                          <span> إتمام الدفع</span>
+                          <span>إتمام الدفع</span>
                         </div>
-                      </Link>
+                      </button>
                     </div>
                   </motion.div>
                 )}
 
-                {/* 💸 Price Detail for non-payment-pending statuses (Optional) */}
                 {activeCard.price !== null && !isPaymentPending && (
                   <div className="bg-gray-50 dark:bg-neutral-800 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-gray-200 dark:border-neutral-700/50 space-y-3">
                     <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white flex items-center gap-2 border-b pb-2">
@@ -549,7 +576,7 @@ export function ExpandableCardDemo() {
                   </div>
                 )}
 
-                {activeCard.status === "معلق" && (
+                {activeCard.status === "قيد المعالجة" && (
                   <div className="pt-4 md:pt-6">
                     <button
                       onClick={handleDelete}
@@ -634,7 +661,6 @@ export function ExpandableCardDemo() {
                   </div>
 
                   <div className="p-5 pt-4 border-t border-gray-100 dark:border-neutral-700/50 space-y-3">
-                    {/* 💰 Price Display: Only if status is 'بانتظار الدفع' (Awaiting Payment) */}
                     {card.status === "بانتظار الدفع" && card.price !== null && (
                       <div className="flex items-center justify-between text-sm font-extrabold text-purple-600 dark:text-purple-400">
                         <div className="flex items-center gap-1">
@@ -659,7 +685,6 @@ export function ExpandableCardDemo() {
                       </div>
                     )}
 
-                    {/* 💡 SMALL CARD PROGRESS DISPLAY: Now showing log existence instead of percentage */}
                     {card.trackingLog && card.trackingLog.length > 0 && (
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                         <div className="flex items-center gap-1 text-blue-500 dark:text-blue-400">
@@ -698,7 +723,9 @@ export function ExpandableCardDemo() {
                         <IoHourglassOutline className="size-4" />
                       )}
                       <span>
-                        {card.isAdminViewed ? "تمت المراجعه" : "في انتظار المراجعة "}
+                        {card.isAdminViewed
+                          ? "تمت المراجعه"
+                          : "في انتظار المراجعة "}
                       </span>
                     </div>
                   </div>

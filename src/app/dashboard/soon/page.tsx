@@ -3,7 +3,6 @@ import { AnimatedNoise } from "@/components/ui/dashboard-ui/soon-ui/noise";
 import AnimatedPathText from "@/components/ui/dashboard-ui/soon-ui/text-along-path";
 import { cn } from "@/lib/utils";
 import React, { useEffect } from "react";
-import { IoTimeOutline } from "react-icons/io5";
 
 function SoonPage() {
   useEffect(() => {

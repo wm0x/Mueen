@@ -5,7 +5,9 @@ import * as z from "zod";
 import { auth } from "@/auth";
 import { UploadOrder } from "../../../../schema/orders";
 
-export const UploadOrderAction = async (values: z.infer<typeof UploadOrder>) => {
+export const UploadOrderAction = async (
+  values: z.infer<typeof UploadOrder>
+) => {
   const session = await auth();
   if (!session?.user?.id) return { error: "غير مصرح لك بتنفيذ هذا الإجراء" };
 
@@ -21,6 +23,15 @@ export const UploadOrderAction = async (values: z.infer<typeof UploadOrder>) => 
         subject: subject,
         deadline,
         userId,
+      },
+    });
+
+    await db.orderTracking.create({
+      data: {
+        orderId: order.id,
+        event: "إنشاء طلب جديد",
+        description: `تم إنشاء طلب بعنوان: ${title}`,
+        performedBy: userId,
       },
     });
 
