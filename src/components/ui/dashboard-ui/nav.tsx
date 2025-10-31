@@ -61,8 +61,8 @@ export function NavDock({ session }: { session: UserSession | null }) {
         
         {
             title: " الدعم الفني ",
-            icon: (<BiSupport className="h-full w-full text-neutral-500 dark:text-neutral-300" />),
-            href: "/dashboard/support",
+            icon: (<BiSupport className="h-full w-full text-[#FFA726] " />),
+            href: "/dashboard/soon",
         },
         {
             title: " الطلبات ",
@@ -86,8 +86,8 @@ export function NavDock({ session }: { session: UserSession | null }) {
         },
         {
             title: "الاعدادات",
-            icon: (<IconSettings className="h-full w-full text-neutral-500 dark:text-neutral-300" />),
-            href: "/dashboard/setting",
+            icon: (<IconSettings className="h-full w-full text-[#FFA726]" />),
+            href: "/dashboard/soon",
         },
         {
             title: "معلوماتي",
