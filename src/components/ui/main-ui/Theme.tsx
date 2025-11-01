@@ -8,7 +8,6 @@ export const ThemeSwitcherButton = () => {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
-  // ✅ عند تحميل الصفحة، نقرأ الثيم من localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme === "dark") {
@@ -17,40 +16,51 @@ export const ThemeSwitcherButton = () => {
     }
   }, []);
 
+  // Helper function to handle the core theme change logic
+  const toggleTheme = () => {
+    const dark = document.documentElement.classList.toggle("dark");
+    setTheme(dark ? "dark" : "light");
+    localStorage.setItem("theme", dark ? "dark" : "light");
+  };
+
   const changeTheme = async () => {
     if (!buttonRef.current) return;
 
-    await document.startViewTransition(() => {
-      flushSync(() => {
-        const dark = document.documentElement.classList.toggle("dark");
-        setTheme(dark ? "dark" : "light");
-        // ✅ نحفظ الثيم في localStorage
-        localStorage.setItem("theme", dark ? "dark" : "light");
-      });
-    }).ready;
+    // this for check browser 
+    if (document.startViewTransition) {
+      await document.startViewTransition(() => {
+        flushSync(toggleTheme);
+      }).ready;
+      
+      const { top, left, width, height } =
+        buttonRef.current.getBoundingClientRect();
+      
+      const y = top + height / 2;
+      const x = left + width / 2;
 
-    const { top, left, width, height } =
-      buttonRef.current.getBoundingClientRect();
-    const y = top + height / 2;
-    const x = left + width / 2;
+      const right = window.innerWidth - left;
+      const bottom = window.innerHeight - top;
+      
+      // maxRad is now correctly defined in the same scope it's used
+      const maxRad = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
-    const right = window.innerWidth - left;
-    const bottom = window.innerHeight - top;
-    const maxRad = Math.hypot(Math.max(left, right), Math.max(top, bottom));
-
-    document.documentElement.animate(
-      {
-        clipPath: [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${maxRad}px at ${x}px ${y}px)`,
-        ],
-      },
-      {
-        duration: 700,
-        easing: "ease-in-out",
-        pseudoElement: "::view-transition-new(root)",
-      }
-    );
+      document.documentElement.animate(
+        {
+          clipPath: [
+            `circle(0px at ${x}px ${y}px)`,
+            `circle(${maxRad}px at ${x}px ${y}px)`,
+          ],
+        },
+        {
+          duration: 700,
+          easing: "ease-in-out",
+          pseudoElement: "::view-transition-new(root)",
+        }
+      );
+    } else {
+      // 3. Fallback: If not supported, apply the theme change directly
+      flushSync(toggleTheme);
+    }
   };
 
   return (

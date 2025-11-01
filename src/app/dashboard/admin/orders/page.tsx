@@ -1,9 +1,7 @@
-
-import MainForm from "@/components/ui/dashboard-ui/admin-panel-ui/MainForm";
+import MainForm from "@/components/ui/dashboard-ui/admin-panel-ui/orders/MainForm";
 import React from "react";
 
 function AdminOrdersPage() {
-
   return (
     <div>
       <div
@@ -22,7 +20,6 @@ function AdminOrdersPage() {
             مُــــــعِــــــيــــــن
           </span>
         </div>
-
       </div>
       <MainForm />
     </div>

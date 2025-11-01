@@ -49,15 +49,18 @@ model PasswordResetToken {
 model Order {
   id              String     @id @default(cuid())
   title           String
-  description     String?
   status          String     @default("قيد المعالجة") 
+
+  description     String?
   price           Float?    
   priceDetails    String?   
-  rejectionReason String?   
+  rejectionReason String?
+  deadline        DateTime? 
+
+
   filesUrls       String[]  
   subject         String[]  
   createdAt       DateTime   @default(now())
-  deadline        DateTime? 
   isAdminViewed   Boolean    @default(false) 
   isDeleted       Boolean    @default(false)
 
@@ -77,8 +80,9 @@ model OrderTracking {
   id        String   @id @default(cuid())
   orderId   String
   order     Order    @relation(fields: [orderId], references: [id])
-  
   event     String   
+
+  
   description String? 
   performedBy String?
   createdAt DateTime @default(now())

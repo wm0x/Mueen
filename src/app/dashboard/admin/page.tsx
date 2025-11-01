@@ -58,7 +58,7 @@ function OrdersPage() {
             </MainMenusGradientCard>
           </Link>
 
-          <Link href="/dashboard/accepted-requests" className=" ">
+          <Link href="/dashboard/admin/accepted-orders" className=" ">
             <MainMenusGradientCard
               className="p-4 cursor-pointer"
               description="عرض الطلبات التي تم قبولها ومعالجتها من قبلك"

@@ -580,13 +580,13 @@ export function ExpandableCardDemo() {
                   <div className="pt-4 md:pt-6">
                     <button
                       onClick={handleDelete}
-                      className="group relative flex w-full justify-center items-center gap-2 bg-red-500/5 backdrop-blur-sm border border-red-600/70 text-white text-center py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg 
+                      className="group relative flex w-full justify-center items-center gap-2 bg-red-500/5 backdrop-blur-sm border border-red-600/70 dark:text-white text-center py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg 
                hover:border-red-500 transition-all duration-300 hover:bg-red-500/5 cursor-pointer"
                     >
                       <div className="absolute inset-0 rounded-xl md:rounded-2xl bg-red-500/0 group-hover:bg-red-500/5 transition-all duration-300"></div>
 
                       <IoTrashOutline className="size-5 md:size-6 text-red-500 relative z-10" />
-                      <span className="relative z-10">حذف الطلب</span>
+                      <span className="relative z-10 ">حذف الطلب</span>
                     </button>
                   </div>
                 )}

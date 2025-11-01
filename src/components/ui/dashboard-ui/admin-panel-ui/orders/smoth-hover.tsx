@@ -18,8 +18,8 @@ import {
   IoAlertCircleOutline,
 } from "react-icons/io5";
 import { motion } from "framer-motion";
-import { Input } from "../../input";
-import { Textarea } from "../../textarea";
+import { Input } from "../../../input";
+import { Textarea } from "../../../textarea";
 
 interface UserDetails {
   id: string;
@@ -96,7 +96,7 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
 
   const isAdministrator = userRole === "administrator";
 
-  if (order.status !== "معلق") {
+  if (order.status !== "قيد المعالجة") {
     return null;
   }
 
@@ -294,7 +294,7 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
       <button
         onClick={() => setAction("accept")}
         disabled={isLoading}
-        className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md"
+        className="flex-1 py-3 px-4 cursor-pointer rounded-xl font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md"
       >
         <div className="p-1 bg-white/20 rounded-lg">
           <IoCheckmarkOutline className="size-4" />
@@ -305,7 +305,7 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
         onClick={() => setAction("reject")}
         disabled={isLoading || !isAdministrator}
         className={cn(
-          "flex-1 py-3 px-4 rounded-xl font-bold text-sm text-white transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md",
+          "flex-1 py-3 px-4 rounded-xl font-bold cursor-pointer text-sm text-white transition-colors duration-200 disabled:opacity-50 flex items-center justify-center gap-2 shadow-md",
           isAdministrator
             ? "bg-red-600 hover:bg-red-700"
             : "bg-neutral-400 cursor-not-allowed"
@@ -472,7 +472,7 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-xl">
+          <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-xl ml-3">
             <IoHourglassOutline className="size-5 text-amber-500" />
           </div>
           <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded-full">
@@ -487,10 +487,14 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
       >
         <div className="flex items-center gap-2">عرض التفاصيل الكاملة</div>
         <div className="p-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg group-hover:scale-105 transition-all duration-300 transform-gpu">
-  <div className={`transition-all duration-300 transform-gpu ${showDetails ? 'rotate-180' : 'rotate-0'}`}>
-    <IoChevronDownOutline className="size-4" />
-  </div>
-</div>
+          <div
+            className={`transition-all duration-300 transform-gpu ${
+              showDetails ? "rotate-180" : "rotate-0"
+            }`}
+          >
+            <IoChevronDownOutline className="size-4" />
+          </div>
+        </div>
       </div>
 
       {showDetails && (
@@ -664,26 +668,23 @@ export const AdminOrderActionCardDemo: React.FC<DemoProps> = ({
   };
 
   return (
-    <div
-      dir="rtl"
-      className=" bg-gray-50 dark:bg-neutral-950 p-6 md:p-8"
-    >
+    <div dir="rtl" className="  p-6 md:p-8">
       <div className="mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">
-              إدارة الطلبات
+              الطلبات
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
               {orders.length > 0
                 ? `عرض ${orders.length} طلب${orders.length > 1 ? "ات" : ""}`
-                : "إدارة طلبات العملاء"}
+                : " طلبات العملاء"}
             </p>
           </div>
           <button
             onClick={fetchOrders}
             disabled={loading}
-            className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 rounded-xl hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200 font-medium text-gray-700 dark:text-gray-300 disabled:opacity-50"
+            className="flex items-center gap-2 px-6 cursor-pointer py-3 bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-700 rounded-xl hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200 font-medium text-gray-700 dark:text-gray-300 disabled:opacity-50"
           >
             <svg
               className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
