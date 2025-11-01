@@ -20,6 +20,7 @@ import {
 import { motion } from "framer-motion";
 import { Input } from "../../../input";
 import { Textarea } from "../../../textarea";
+import { CgDetailsLess } from "react-icons/cg";
 
 interface UserDetails {
   id: string;
@@ -36,6 +37,7 @@ interface Order {
     | "معلق"
     | "قيد المعالجة"
     | "بانتظار الدفع"
+    | "قيد التنفيذ"
     | "مكتمل"
     | "مرفوض"
     | string;
@@ -362,8 +364,10 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
                   placeholder="أدخل السعر الإجمالي"
                   required
                   min="1"
-                  className="w-full p-3 border border-indigo-400 dark:border-indigo-700 rounded-xl text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-200"
+                  className="w-full p-3 border border-indigo-400 dark:border-indigo-700 rounded-xl text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-gray-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-200 
+                              [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
+
                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                   ﷼
                 </div>
@@ -373,7 +377,7 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                 <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                  <IoDocumentAttachOutline className="size-4 text-blue-500" />
+                  <CgDetailsLess className="size-4 text-blue-500" />
                 </div>
                 تفاصيل السعر
               </label>
@@ -412,7 +416,7 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
           <button
             onClick={() => setAction(null)}
             disabled={isLoading}
-            className="flex-1 py-3 rounded-xl text-sm border border-neutral-400 dark:border-neutral-600 text-gray-700 dark:text-gray-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all duration-200 disabled:opacity-50 font-semibold"
+            className="flex-1 py-3 rounded-xl text-sm border hover:cursor-pointer  border-neutral-400 dark:border-neutral-600 text-gray-700 dark:text-gray-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all duration-200 disabled:opacity-50 font-semibold"
           >
             إلغاء
           </button>
@@ -424,7 +428,7 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
               (!isRejecting && (!priceInput || !priceDetailsInput.trim()))
             }
             className={cn(
-              "flex-1 py-3 rounded-xl font-bold text-white text-sm transition-all duration-200 disabled:opacity-50 shadow-md",
+              "flex-1 py-3 rounded-xl font-bold text-white text-sm hover:cursor-pointer transition-all duration-200 disabled:opacity-50 shadow-md",
               isRejecting
                 ? "bg-red-600 hover:bg-red-700"
                 : "bg-indigo-600 hover:bg-indigo-700"

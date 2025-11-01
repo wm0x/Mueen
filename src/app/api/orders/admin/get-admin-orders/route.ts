@@ -14,15 +14,21 @@ export async function GET() {
     }
 
     const orders = await db.order.findMany({
-      where: {
-        acceptedByAdminId: adminId,
-      },
+        where: {
+            OR: [
+              { acceptedByAdminId: adminId } // أنت اللي قبلته
+            ],
+          },          
       include: {
         user: true,
-        acceptedByAdmin: true, 
+        acceptedByAdmin: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
+
+    console.log(orders.length)
 
     return NextResponse.json({ orders }, { status: 200 });
 

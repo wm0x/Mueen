@@ -28,8 +28,8 @@ async function AcceptedOrdersPage() {
         </span>
       </div>
       <AdminOrderActionCardDemo
-        initialAdminId={adminRole}
-        initialRole={adminId}
+        initialAdminId={adminId}
+        initialRole={adminRole}
       />
     </div>
   );

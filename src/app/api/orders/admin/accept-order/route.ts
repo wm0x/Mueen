@@ -15,7 +15,7 @@ export async function POST(req: Request) {
       }
       
 
-    const { orderId, price } = await req.json();
+    const { orderId, price ,priceDetails  } = await req.json();
 
     if (!orderId || !price) {
       return new Response(
@@ -30,6 +30,7 @@ export async function POST(req: Request) {
         acceptedByAdminId: adminId,
         status: "بانتظار الدفع",
         price: price,
+        priceDetails: priceDetails,
       },
     });
 

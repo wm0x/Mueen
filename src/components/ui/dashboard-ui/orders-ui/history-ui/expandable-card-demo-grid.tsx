@@ -547,46 +547,18 @@ export function ExpandableCardDemo() {
                   </div>
                 )}
 
-                {!isRejected && (
-                  <div className="pt-2 md:pt-4">
-                    <Link
-                      href={`/dashboard/orders/track?id=${activeCard.id}`}
-                      className="group relative flex w-full bg-gradient-to-r from-neutral-800 to-black text-white text-center py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg 
-                  shadow-xl shadow-neutral-900/50 hover:shadow-neutral-900/70 transition-all duration-500 overflow-hidden transform hover:scale-[1.01]"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-white/40 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[120%] transition-transform duration-1000" />
-
-                      <div className="relative flex items-center justify-center gap-2 w-full">
-                        <span>تتبع حالة الطلب خطوة بخطوة</span>
-                        <svg
-                          className="w-4 h-4 md:w-5 md:h-5 transform group-hover:translate-x-1 transition-transform duration-300"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </div>
-                    </Link>
-                  </div>
-                )}
-
-                {activeCard.status === "قيد المعالجة" && (
+                {(activeCard.status === "قيد المعالجة" ||
+                  activeCard.status === "بانتظار الدفع") && (
                   <div className="pt-4 md:pt-6">
                     <button
                       onClick={handleDelete}
                       className="group relative flex w-full justify-center items-center gap-2 bg-red-500/5 backdrop-blur-sm border border-red-600/70 dark:text-white text-center py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg 
-               hover:border-red-500 transition-all duration-300 hover:bg-red-500/5 cursor-pointer"
+      hover:border-red-500 transition-all duration-300 hover:bg-red-500/5 cursor-pointer"
                     >
                       <div className="absolute inset-0 rounded-xl md:rounded-2xl bg-red-500/0 group-hover:bg-red-500/5 transition-all duration-300"></div>
 
                       <IoTrashOutline className="size-5 md:size-6 text-red-500 relative z-10" />
-                      <span className="relative z-10 ">حذف الطلب</span>
+                      <span className="relative z-10">حذف الطلب</span>
                     </button>
                   </div>
                 )}

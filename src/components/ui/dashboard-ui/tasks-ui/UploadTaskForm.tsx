@@ -293,12 +293,12 @@ function UploadTaskForm() {
                     )}
                   />
                 </div>
-                <div className="space-y-3 w-full" dir="rtl">
+                <div className=" w-full" dir="rtl">
                   <div className="flex items-center space-x-2" dir="rtl">
-                    <h1 className="text-lg font-medium mb-3">
+                    <h1 className="text-lg font-medium">
                       تفاصيل وملاحظات إضافية
                     </h1>
-                    <h1 className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-3">
+                    <h1 className="text-sm font-normal text-gray-500 dark:text-gray-400 ">
                       (اختياري)
                     </h1>
                   </div>

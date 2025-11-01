@@ -6,13 +6,6 @@ export async function POST(req: Request) {
   try {
     const session = await auth();
     const adminId = session?.user?.id;
-    const role = session?.user?.role;
-
-    // السماح فقط لـ admin أو administrator
-    const allowedRoles = ["admin", "administrator"];
-    if (!adminId || !allowedRoles.includes(role || "")) {
-      return NextResponse.json({ error: "غير مصرح لك" }, { status: 401 });
-    }
 
     const { orderId } = await req.json();
 
