@@ -19,7 +19,10 @@ import {
 } from "react-icons/io5";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea"; 
+
+import { supabase } from "@/lib/supabase";
+import { FileDropzone } from "./AdminUploade";
 
 
 
@@ -79,9 +82,9 @@ const fetchAcceptedOrdersAPI = async (): Promise<Order[]> => {
 
 const completeOrderAPI = async (
   orderId: string,
-  finalFileUrl: string,
+  finalFileUrl: string[],
   adminId: string
-): Promise<{ success: boolean }> => {
+): Promise<{ success: boolean, error?: string }> => {
   try {
     const res = await fetch("/api/orders/admin/complete-order", {
       method: "POST",
@@ -91,12 +94,12 @@ const completeOrderAPI = async (
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.error || `Server error: ${res.status}`);
+      return { success: false, error: errorData.error || `Server error: ${res.status}` };
     }
     return { success: true };
   } catch (error) {
     console.error("Completion API Error:", error);
-    throw error;
+    return { success: false, error: "Server fetch error" };
   }
 };
 
@@ -106,7 +109,7 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
    
     const isReadyForUpload = order.status === 'قيد التنفيذ' || order.status === 'قيد المعالجة';
     const [isUploading, setIsUploading] = useState(false);
-    const [file, setFile] = useState<File | null>(null); 
+    const [files, setFiles] = useState<File[]>([]); 
     const [uploadError, setUploadError] = useState<string | null>(null);
     const isCompleted = order.status === 'مكتمل';
     const [showDetails, setShowDetails] = useState(false); 
@@ -116,38 +119,49 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
                         order.status === 'بانتظار الدفع' ? 'bg-purple-600' : 
                         'bg-emerald-600';
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setUploadError(null);
-        if (e.target.files && e.target.files.length > 0) {
-            setFile(e.target.files[0]);
-        } else {
-            setFile(null);
-        }
-    };
-
-    // here must be connection with supabase
+    
     const handleComplete = async () => {
-        if (!file) {
+        if (files.length === 0) {
             alert('يرجى اختيار ملف الحل النهائي أولاً.');
             return;
         }
 
         setIsUploading(true);
         setUploadError(null);
-        let finalFileUrl = '';
+        const uploadedUrls: string[] = [];
 
         try {
-            await new Promise((r) => setTimeout(r, 1000));
-            finalFileUrl = `https://yourdomain.supabase.co/storage/v1/object/public/orders/${order.id}/${file.name}`;
+            for (const file of files) {
+                const filePath = `solutions/${order.id}/${Date.now()}_${file.name}`;
+                
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from("solutions") 
+                    .upload(filePath, file);
+        
+                if (uploadError) {
+                    throw new Error(`فشل رفع الملف ${file.name}: ${uploadError.message}`);
+                }
+        
+                const { data: publicData } = supabase.storage
+                    .from("solutions")
+                    .getPublicUrl(filePath);
+        
+                if (!publicData?.publicUrl) {
+                    throw new Error(`فشل الحصول على رابط الملف: ${file.name}`);
+                }
+                
+                uploadedUrls.push(publicData.publicUrl);
+            }
 
-            const result = await completeOrderAPI(order.id, finalFileUrl, adminId);
+            const result = await completeOrderAPI(order.id, uploadedUrls, adminId);
 
             if (result.success) {
                 onCompletion(order.id, "مكتمل");
                 alert(
-                `تم تحديث حالة الطلب #${order.id} إلى: مكتمل. تم رفع الملف بنجاح.`
+                `تم تحديث حالة الطلب #${order.id} إلى: مكتمل. تم رفع الملفات بنجاح.`
                 );
             } else {
+                throw new Error(result.error || 'فشل في الإكمال.');
             }
         } catch (e) {
             setUploadError(
@@ -155,9 +169,10 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
                 e instanceof Error ? e.message : "خطأ غير معروف"
                 }`
             );
+             alert(`فشل الإكمال: ${e instanceof Error ? e.message : "خطأ غير معروف"}`);
         } finally {
             setIsUploading(false);
-            setFile(null);
+            setFiles([]); // مسح الملف بعد الرفع
         }
     };
 
@@ -310,6 +325,7 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
                 </div>
             </div>
 
+            {/* Collapsible Details Toggle */}
             <div
                 onClick={() => setShowDetails(!showDetails)}
                 className="flex justify-between items-center p-4 text-sm font-bold text-neutral-700 dark:text-neutral-300 cursor-pointer border-b border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800/70 transition-all duration-200 group"
@@ -324,6 +340,7 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
                 </div>
             </div>
 
+            {/* Collapsible Details Content */}
             {showDetails && (
                 <motion.div
                     initial={{ height: 0, opacity: 0 }}
@@ -343,16 +360,9 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
                             إنهاء الطلب ورفع الحل:
                         </h4>
 
-                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            {file
-                                ? `الملف المختار: ${file.name}`
-                                : "اختر ملف الحل النهائي (.zip, .pdf, etc.)"}
-                        </label>
-                        <Input
-                            type="file"
-                            onChange={handleFileChange}
-                            disabled={isUploading}
-                            className="w-full p-2 border border-orange-400 dark:border-orange-700 rounded-lg text-sm bg-white dark:bg-neutral-900 file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200"
+                        <FileDropzone
+                            value={files}
+                            onChange={setFiles} 
                         />
 
                         {uploadError && (
@@ -361,7 +371,7 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
 
                         <button
                             onClick={handleComplete}
-                            disabled={isUploading || !file}
+                            disabled={isUploading || files.length === 0}
                             className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-sm disabled:opacity-50 transition-colors shadow-md mt-2"
                         >
                             {isUploading
@@ -382,6 +392,7 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
                     </p>
                 )}
 
+                {/* Fallback for others' accepted orders */}
                 {!acceptedByMe && !isCompleted && (
                     <p className="text-sm text-neutral-500 dark:text-neutral-400 font-medium p-2 bg-neutral-100 dark:bg-neutral-700 rounded-lg border border-neutral-300">
                         الطلب قيد المعالجة، لكنه مقبول بواسطة مسؤول آخر.
@@ -393,6 +404,7 @@ const AcceptedOrderRow: React.FC<{ order: Order, onCompletion: (orderId: string,
 };
 
 
+// --- DEMO WRAPPER FOR ACCEPTED ORDERS ---
 
 interface DemoProps {
   initialAdminId: string;
@@ -410,14 +422,14 @@ export const AdminOrderActionCardDemo: React.FC<DemoProps> = ({
   const currentRole = initialRole;
   const currentAdminId = initialAdminId;
 
-
-  // fetch data
+  // 💡 جلب الطلبات المقبولة (بدلاً من المعلقة)
   const fetchOrders = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await fetchAcceptedOrdersAPI();
 
+      // 🚀 تم تبسيط التصفية: السيرفر يجلب طلباتك المقبولة بالفعل، نحن نحذف فقط المرفوضة/المعلقة التي قد تظهر.
       const filteredOrders = data.filter(
         (order) =>
           order.status !== "مرفوض" && order.status !== "معلق"
@@ -426,6 +438,7 @@ export const AdminOrderActionCardDemo: React.FC<DemoProps> = ({
       setOrders(filteredOrders);
     } catch (err) {
       console.error("Fetch Error:", err);
+      // في حالة فشل API السيرفر (كود 401)، سنعرض رسالة مناسبة
       const errorMessage = (err instanceof Error && err.message.includes('غير مصرح')) 
                            ? "يرجى تسجيل الدخول بحساب مسؤول لعرض الطلبات." 
                            : "فشل في جلب الطلبات المقبولة من السيرفر.";
@@ -436,12 +449,14 @@ export const AdminOrderActionCardDemo: React.FC<DemoProps> = ({
   };
 
   useEffect(() => {
+    // 💡 يتم الجلب عند التحميل الأولي
     if (currentAdminId && currentAdminId !== "UNAUTHED_USER") {
       fetchOrders();
     }
   }, [currentAdminId]);
 
   const handleCompletion = (orderId: string, newStatus: string) => {
+    // عند إكمال الطلب، نقوم بتحديث حالته في الواجهة
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
         order.id === orderId ? { ...order, status: newStatus } : order

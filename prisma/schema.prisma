@@ -59,6 +59,7 @@ model Order {
 
 
   filesUrls       String[]  
+  fileSolution    String[]   @default([])
   subject         String[]  
   createdAt       DateTime   @default(now())
   isAdminViewed   Boolean    @default(false) 
