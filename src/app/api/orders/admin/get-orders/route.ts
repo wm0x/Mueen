@@ -22,6 +22,13 @@ export async function GET() {
       orderBy: { createdAt: "desc" } 
     });
 
+    await db.order.updateMany({
+      where: {
+        isAdminViewed: false,
+      },
+      data: { isAdminViewed: true },
+    });
+
     return new Response(JSON.stringify(orders), { status: 200 });
   } catch (error) {
     console.error(error);

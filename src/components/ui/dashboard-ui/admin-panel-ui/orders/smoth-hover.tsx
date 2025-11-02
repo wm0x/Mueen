@@ -650,8 +650,8 @@ export const AdminOrderActionCardDemo: React.FC<DemoProps> = ({
                   لا توجد طلبات حالياً
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 text-lg max-w-md mx-auto leading-relaxed">
-                  لم يتم العثور على أي طلبات في النظام. عند تقديم طلبات جديدة،
-                  ستظهر هنا تلقائياً.
+                  لم يتم العثور على أي طلبات في النظام عند تقديم طلبات جديدة،
+                  ستظهر هنا تلقائياً
                 </p>
               </div>
             </div>

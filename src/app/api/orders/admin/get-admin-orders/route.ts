@@ -14,11 +14,9 @@ export async function GET() {
     }
 
     const orders = await db.order.findMany({
-        where: {
-            OR: [
-              { acceptedByAdminId: adminId } // أنت اللي قبلته
-            ],
-          },          
+      where: {
+        OR: [{ acceptedByAdminId: adminId }],
+      },
       include: {
         user: true,
         acceptedByAdmin: true,
@@ -28,10 +26,7 @@ export async function GET() {
       },
     });
 
-    console.log(orders.length)
-
     return NextResponse.json({ orders }, { status: 200 });
-
   } catch (error) {
     console.error("[GET_ADMIN_ORDERS_ERROR]", error);
     return NextResponse.json({ error: "خطأ في الخادم" }, { status: 500 });

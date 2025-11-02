@@ -481,7 +481,7 @@ export function ExpandableCardDemo() {
                             alert("حدث خطأ أثناء إتمام الدفع");
                           }
                         }}
-                        className="group relative flex-1 bg-gradient-to-r from-stone-700 via-neutral-800 to-stone-900 text-white text-center py-3 rounded-xl font-bold text-sm shadow-lg shadow-stone-800/40 hover:shadow-stone-900/60 transition-all duration-300 transform border border-stone-600/30"
+                        className="group relative hover:cursor-pointer flex-1 bg-gradient-to-r from-stone-700 via-neutral-800 to-stone-900 text-white text-center py-3 rounded-xl font-bold text-sm shadow-lg shadow-stone-800/40 hover:shadow-stone-900/60 transition-all duration-300 transform border border-stone-600/30"
                       >
                         <div className="relative flex items-center justify-center gap-2">
                           <IoWalletOutline className="size-5" />
@@ -500,7 +500,7 @@ export function ExpandableCardDemo() {
                     </h4>
                     <div className="flex items-center justify-between">
                       <span className="font-extrabold text-sm text-gray-700 dark:text-gray-300">
-                        قيمة الطلب النهائية:
+                      تكلفة الطلب:
                       </span>
                       <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
                         {formatPrice(activeCard.price)}
@@ -508,7 +508,7 @@ export function ExpandableCardDemo() {
                     </div>
                     <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 pt-2 border-t border-gray-100 dark:border-neutral-700/50">
                       <span className="font-bold text-neutral-700 dark:text-neutral-300 ml-1">
-                        الشرح:
+                        سبب التسعير:
                       </span>
                       {activeCard.priceDetails ||
                         "لا توجد تفاصيل تسعير إضافية."}
