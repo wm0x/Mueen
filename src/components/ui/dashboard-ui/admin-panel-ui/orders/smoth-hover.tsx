@@ -2,16 +2,12 @@
 import { cn } from "@/lib/utils";
 import React, { useState, useEffect } from "react";
 import {
-  IoCheckmarkCircleOutline,
-  IoCloseCircleOutline,
   IoHourglassOutline,
   IoCheckmarkOutline,
   IoCloseOutline,
   IoCalendarOutline,
-  IoDocumentAttachOutline,
   IoPricetagOutline,
   IoChevronDownOutline,
-  IoChevronUpOutline,
   IoTimeOutline,
   IoEyeOutline,
   IoDocumentOutline,

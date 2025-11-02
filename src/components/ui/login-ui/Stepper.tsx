@@ -33,7 +33,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
 export default function Stepper({
   children,
   initialStep = 1,
-  currentStep: externalStep, // 👈 القيمة القادمة من الخارج
+  currentStep: externalStep, 
   onStepChange = () => {},
   onFinalStepCompleted = () => {},
   stepCircleContainerClassName = "",

@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, useId } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useOutsideClick } from "@/hooks/click/useOutsideClick";
-import Link from "next/link";
 import {
   IoDocumentAttachOutline,
   IoEyeOutline,

@@ -3,23 +3,15 @@ import { cn } from "@/lib/utils";
 import React, { useState, useEffect } from "react";
 import {
   IoCheckmarkCircleOutline,
-  IoCloseCircleOutline,
   IoHourglassOutline,
-  IoCheckmarkOutline,
-  IoCloseOutline,
   IoCalendarOutline,
-  IoDocumentAttachOutline,
-  IoPricetagOutline,
   IoChevronDownOutline,
   IoChevronUpOutline,
   IoTimeOutline,
   IoEyeOutline,
   IoDocumentOutline,
-  IoAlertCircleOutline,
 } from "react-icons/io5";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 
 import { supabase } from "@/lib/supabase";
 import { FileDropzone } from "./AdminUploade";
@@ -416,8 +408,8 @@ const AcceptedOrderRow: React.FC<{
         )}
 
         {isCompleted && (
-          <p className="text-sm text-emerald-600 dark:text-emerald-400 font-bold p-2 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg border border-emerald-300">
-            تم إكمال الطلب بنجاح ✅
+          <p className="text-sm text-emerald-600 text-center dark:text-emerald-400 font-bold p-2 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg border border-emerald-300">
+            تم إكمال الطلب 
           </p>
         )}
         {order.status === "بانتظار الدفع" && acceptedByMe && (

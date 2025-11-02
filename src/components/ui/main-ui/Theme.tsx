@@ -41,7 +41,6 @@ export const ThemeSwitcherButton = () => {
       const right = window.innerWidth - left;
       const bottom = window.innerHeight - top;
       
-      // maxRad is now correctly defined in the same scope it's used
       const maxRad = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
       document.documentElement.animate(
@@ -58,7 +57,6 @@ export const ThemeSwitcherButton = () => {
         }
       );
     } else {
-      // 3. Fallback: If not supported, apply the theme change directly
       flushSync(toggleTheme);
     }
   };

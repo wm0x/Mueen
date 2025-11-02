@@ -1,6 +1,5 @@
 'use client';
 
-import { MdOutlineManageAccounts } from "react-icons/md";
 import { IconSettings } from "@tabler/icons-react";
 import { BiSupport } from "react-icons/bi";
 import { FaRegUserCircle } from "react-icons/fa";

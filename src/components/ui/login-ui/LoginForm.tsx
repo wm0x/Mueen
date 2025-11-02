@@ -2,7 +2,6 @@
 import React, {
   useState,
   useCallback,
-  startTransition,
   useTransition,
 } from "react";
 import Stepper, { Step } from "./Stepper";
