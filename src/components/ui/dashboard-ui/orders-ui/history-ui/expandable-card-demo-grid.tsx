@@ -17,6 +17,8 @@ import {
   IoRocketOutline,
   IoTimeOutline,
 } from "react-icons/io5";
+import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface TrackingEvent {
   event: string;
@@ -24,12 +26,13 @@ interface TrackingEvent {
   createdAt: string;
 }
 
+// card sections and details
 interface Card {
   id: string;
   title: string;
   description: string;
-  status: // | "معلق"
-  | "قيد المعالجة"
+  status:
+    | "قيد المعالجة"
     | "بانتظار الدفع"
     | "قيد التنفيذ"
     | "مكتمل"
@@ -44,6 +47,7 @@ interface Card {
   deadline: string | null;
   subject: string[];
   trackingLog: TrackingEvent[];
+  fileSolution: string[];
 }
 
 const cards: Card[] = [];
@@ -62,7 +66,6 @@ const formatDate = (dateString: string | null) => {
   return new Date(dateString).toLocaleDateString("ar-SA", options);
 };
 
-// تنسيق تاريخ ووقت التتبع
 const formatTrackingDate = (dateString: string) => {
   const date = new Date(dateString);
   const datePart = date.toLocaleDateString("ar-SA", {
@@ -88,8 +91,6 @@ const formatPrice = (price: number) => {
 
 const getStatusColor = (status: Card["status"]) => {
   switch (status) {
-    // case "معلق":
-    //   return "bg-amber-500/90";
     case "قيد المعالجة":
       return "bg-blue-500/90";
     case "قيد التنفيذ":
@@ -113,22 +114,13 @@ export function ExpandableCardDemo() {
   const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 💡 NEW FUNCTION: Handle Delete
   const handleDelete = async () => {
     const activeCard = active as Card;
     if (!activeCard) return;
 
-    if (
-      !window.confirm(
-        "هل أنت متأكد من أنك تريد حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء."
-      )
-    ) {
-      return;
-    }
-
     try {
       const res = await fetch(`/api/orders/delete-order`, {
-        method: "DELETE",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -140,13 +132,31 @@ export function ExpandableCardDemo() {
       if (res.ok && data.success) {
         setCards((prev) => prev.filter((card) => card.id !== activeCard.id));
         setActive(null);
-        alert(data.success || "تم حذف الطلب بنجاح.");
+        toast.success("تم حذف الطلب بنجاح.", {
+          description: ``,
+          action: {
+            label: "تجاهل",
+            onClick: () => console.log("Undo"),
+          },
+        });
       } else {
-        alert(`فشل في حذف الطلب: ${data.error || "حدث خطأ غير معروف"}`);
+        toast.error("فشل في حذف الطلب", {
+          description: `فشل في حذف الطلب: ${data.error || "حدث خطأ غير معروف"}`,
+          action: {
+            label: "تجاهل",
+            onClick: () => console.log("Undo"),
+          },
+        });
       }
     } catch (err) {
       console.error("Delete Error:", err);
-      alert("حدث خطأ أثناء الاتصال بالخادم لحذف الطلب.");
+      toast.error("حدث خطأ أثناء الاتصال بالخادم لحذف الطلب.", {
+        description: `فشل في حذف الطلب: ${err || "حدث خطأ غير معروف"}`,
+        action: {
+          label: "تجاهل",
+          onClick: () => console.log("Undo"),
+        },
+      });
     }
   };
 
@@ -185,6 +195,7 @@ export function ExpandableCardDemo() {
               description: t.description || null,
               createdAt: t.createdAt,
             })) || [],
+          fileSolution: o.fileSolution || [],
         }));
 
         setCards(mapped);
@@ -239,7 +250,7 @@ export function ExpandableCardDemo() {
         {activeCard && (
           <div className="fixed inset-0 grid place-items-start md:place-items-center z-50 p-2 md:p-4 overflow-y-auto">
             <motion.div
-              layoutId={`card-${activeCard.title}-${id}`}
+              layoutId={`card-${activeCard.id}-${id}`}
               ref={ref}
               className="w-full max-w-3xl mt-4 md:mt-0 bg-white pb-10 dark:bg-neutral-900 rounded-[25px] md:rounded-[35px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] border border-gray-100/50 dark:border-neutral-800/80 overflow-y-auto max-h-[95vh]"
             >
@@ -274,13 +285,13 @@ export function ExpandableCardDemo() {
 
                   <div className="mt-4 md:mt-6 text-center">
                     <motion.h3
-                      layoutId={`title-${activeCard.title}-${id}`}
+                      layoutId={`title-${activeCard.id}-${id}`}
                       className="font-extrabold text-xl md:text-3xl text-gray-900 dark:text-white mb-1 md:mb-2"
                     >
                       {activeCard.title}
                     </motion.h3>
                     <motion.p
-                      layoutId={`description-${activeCard.description}-${id}`}
+                      layoutId={`description-${activeCard.id}-${id}`}
                       className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm md:text-base max-w-lg mx-auto"
                     >
                       {activeCard.description}
@@ -418,6 +429,40 @@ export function ExpandableCardDemo() {
                   </div>
                 )}
 
+                {activeCard.status === "مكتمل" &&
+                  activeCard.fileSolution &&
+                  activeCard.fileSolution.length > 0 && (
+                    <div className="bg-gray-50 dark:bg-neutral-800 rounded-2xl md:rounded-3xl p-4 md:p-5 border border-emerald-400/50 dark:border-emerald-700/50 space-y-4">
+                      <h4 className="font-bold text-base md:text-lg text-gray-900 dark:text-white mb-3 md:mb-4 flex items-center gap-2">
+                        <IoDocumentAttachOutline className="size-4 md:size-5 text-emerald-500" />
+                        ملفات الحل النهائي ({activeCard.fileSolution.length})
+                      </h4>
+                      <div className="space-y-2">
+                        {activeCard.fileSolution.map(
+                          (url: string, index: number) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between bg-white dark:bg-neutral-900 rounded-lg md:rounded-xl p-3 border border-emerald-300 dark:border-emerald-700/50 shadow-sm"
+                            >
+                              <span className="text-gray-700 dark:text-gray-200 text-xs md:text-sm font-medium truncate max-w-[60%]">
+                                {url.split("/").pop()}
+                              </span>
+                              <a
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-emerald-500 hover:text-emerald-600 transition-colors text-xs md:text-sm font-bold bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 rounded-lg"
+                              >
+                                <IoEyeOutline className="size-4" />
+                                تحميل الملف
+                              </a>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                 {isPaymentPending && activeCard.price !== null && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -471,14 +516,25 @@ export function ExpandableCardDemo() {
                             const data = await res.json();
 
                             if (data.error) {
-                              return alert(data.error);
+                              return toast.error("حدث خطأ ", {
+                                description: `${data.error}`,
+                                action: {
+                                  label: "تجاهل",
+                                  onClick: () => console.log("Undo"),
+                                },
+                              });
                             }
 
                             // here i will add toast notification
                             window.location.reload();
                           } catch (err) {
                             console.error(err);
-                            alert("حدث خطأ أثناء إتمام الدفع");
+                            toast.error("حدث خطأ أثناء إتمام الدفع", {
+                              action: {
+                                label: "تجاهل",
+                                onClick: () => console.log("Undo"),
+                              },
+                            });
                           }
                         }}
                         className="group relative hover:cursor-pointer flex-1 bg-gradient-to-r from-stone-700 via-neutral-800 to-stone-900 text-white text-center py-3 rounded-xl font-bold text-sm shadow-lg shadow-stone-800/40 hover:shadow-stone-900/60 transition-all duration-300 transform border border-stone-600/30"
@@ -500,7 +556,7 @@ export function ExpandableCardDemo() {
                     </h4>
                     <div className="flex items-center justify-between">
                       <span className="font-extrabold text-sm text-gray-700 dark:text-gray-300">
-                      تكلفة الطلب:
+                        تكلفة الطلب:
                       </span>
                       <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
                         {formatPrice(activeCard.price)}
@@ -550,16 +606,40 @@ export function ExpandableCardDemo() {
                 {(activeCard.status === "قيد المعالجة" ||
                   activeCard.status === "بانتظار الدفع") && (
                   <div className="pt-4 md:pt-6">
-                    <button
-                      onClick={handleDelete}
-                      className="group relative flex w-full justify-center items-center gap-2 bg-red-500/5 backdrop-blur-sm border border-red-600/70 dark:text-white text-center py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg 
-      hover:border-red-500 transition-all duration-300 hover:bg-red-500/5 cursor-pointer"
-                    >
-                      <div className="absolute inset-0 rounded-xl md:rounded-2xl bg-red-500/0 group-hover:bg-red-500/5 transition-all duration-300"></div>
+                    <AlertDialog >
+                      <AlertDialogTrigger asChild>
+                        <button
+                          className="group relative flex w-full justify-center items-center gap-2 bg-red-500/5 backdrop-blur-sm border border-red-600/70 dark:text-white text-center py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-base md:text-lg 
+          hover:border-red-500 transition-all duration-300 hover:bg-red-500/5 cursor-pointer"
+                        >
+                          <div className="absolute inset-0 rounded-xl md:rounded-2xl bg-red-500/0 group-hover:bg-red-500/5 transition-all duration-300"></div>
+                          <IoTrashOutline className="size-5 md:size-6 text-red-500 relative z-10" />
+                          <span className="relative z-10">حذف الطلب</span>
+                        </button>
+                      </AlertDialogTrigger>
 
-                      <IoTrashOutline className="size-5 md:size-6 text-red-500 relative z-10" />
-                      <span className="relative z-10">حذف الطلب</span>
-                    </button>
+                      <AlertDialogContent dir="rtl">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle dir="" className="text-right">
+                            هل أنت متأكد من حذف الطلب؟
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-right">
+                            هذا الإجراء لا يمكن التراجع عنه.
+
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDelete} 
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                          >
+                            تأكيد الحذف
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 )}
               </div>
@@ -601,7 +681,7 @@ export function ExpandableCardDemo() {
                 <div className="absolute inset-px rounded-[23px] bg-gray-50 dark:bg-neutral-900 transition-colors duration-300" />
 
                 <motion.div
-                  layoutId={`card-${card.title}-${id}`}
+                  layoutId={`card-${card.id}-${id}`}
                   className="relative rounded-[20px] bg-white dark:bg-neutral-800 border border-gray-100 dark:border-neutral-700 overflow-hidden h-full flex flex-col transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-indigo-500/10"
                 >
                   <div className="flex items-center justify-between p-5 bg-gradient-to-b from-indigo-50/50 to-white dark:from-neutral-700/20 dark:to-neutral-800/50 border-b border-gray-100 dark:border-neutral-700">
@@ -619,13 +699,13 @@ export function ExpandableCardDemo() {
 
                   <div className="p-5 flex-grow">
                     <motion.h3
-                      layoutId={`title-${card.title}-${id}`}
+                      layoutId={`title-${card.id}-${id}`}
                       className="font-bold text-xl text-gray-900 dark:text-white mb-2 transition-colors"
                     >
                       {card.title}
                     </motion.h3>
                     <motion.p
-                      layoutId={`description-${card.description}-${id}`}
+                      layoutId={`description-${card.id}-${id}`}
                       className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2 mb-4"
                     >
                       {card.description}
@@ -633,17 +713,18 @@ export function ExpandableCardDemo() {
                   </div>
 
                   <div className="p-5 pt-4 border-t border-gray-100 dark:border-neutral-700/50 space-y-3">
-                    {card.status === "بانتظار الدفع" && card.price !== null && (
-                      <div className="flex items-center justify-between text-sm font-extrabold text-purple-600 dark:text-purple-400">
-                        <div className="flex items-center gap-1">
-                          <IoWalletOutline className="size-4" />
-                          <span>المبلغ:</span>
+                    {activeCard?.status === "بانتظار الدفع" &&
+                      card.price !== null && (
+                        <div className="flex items-center justify-between text-sm font-extrabold text-purple-600 dark:text-purple-400">
+                          <div className="flex items-center gap-1">
+                            <IoWalletOutline className="size-4" />
+                            <span>المبلغ:</span>
+                          </div>
+                          <span className="text-base">
+                            {formatPrice(card.price)}
+                          </span>
                         </div>
-                        <span className="text-base">
-                          {formatPrice(card.price)}
-                        </span>
-                      </div>
-                    )}
+                      )}
 
                     {card.deadline && (
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">

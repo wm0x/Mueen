@@ -21,7 +21,7 @@ export const UploadOrder = z.object({
     title: z.string().min(5, "عنوان الطلب يجب أن يحتوي على 5 أحرف على الأقل"),
     subject: z.array(z.string()).min(1, "يجب اختيار مادة واحدة على الأقل"),
     description: z.string().optional(),
-    files: z.array(z.any()).min(1, "يجب رفع ملف واحد على الأقل"), // For new file uploads
-    fileUrls: z.array(z.string()).optional(), // For existing URLs from Supabase
+    files: z.array(z.any()).min(1, "يجب رفع ملف واحد على الأقل"), 
+    fileUrls: z.array(z.string()).optional(), 
     deadline: dateSchema,
   });

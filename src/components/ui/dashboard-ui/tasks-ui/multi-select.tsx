@@ -1045,7 +1045,7 @@ export const MultiSelect = React.forwardRef<MultiSelectRef, MultiSelectProps>(
 									"overscroll-behavior-y-contain"
 								)}>
 								<CommandEmpty>
-									{emptyIndicator || "No results found."}
+									{emptyIndicator || "لا يوجد نتائج ."}
 								</CommandEmpty>{" "}
 
 								{isGroupedOptions(filteredOptions) ? (

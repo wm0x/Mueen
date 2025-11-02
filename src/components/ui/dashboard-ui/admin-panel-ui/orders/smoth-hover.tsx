@@ -21,6 +21,7 @@ import { motion } from "framer-motion";
 import { Input } from "../../../input";
 import { Textarea } from "../../../textarea";
 import { CgDetailsLess } from "react-icons/cg";
+import { toast } from "sonner";
 
 interface UserDetails {
   id: string;
@@ -122,6 +123,12 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
         url = "/api/orders/admin/reject-order";
         body.reason = rejectionReason;
       } else {
+        toast.error("Invalid status", {
+          action: {
+            label: "تجاهل",
+            onClick: () => console.log("Undo"),
+          },
+        });
         return { success: false, error: "Invalid status" };
       }
 
@@ -139,20 +146,34 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
   }
 
   const handleAction = async (newStatus: string) => {
-    // --- VALIDATION ---
     if (newStatus === "مرفوض" && !rejectionReason.trim()) {
-      alert("يجب إدخال سبب الرفض.");
+      toast.error("يجب ادخال سبب الرفض", {
+        action: {
+          label: "تجاهل",
+          onClick: () => console.log("Undo"),
+        },
+      });
       return;
     }
     if (
       newStatus === "بانتظار الدفع" &&
       (!priceInput || priceInput <= 0 || !priceDetailsInput.trim())
     ) {
-      alert("يجب تحديد سعر صحيح وتفاصيل السعر قبل القبول.");
+      toast.error("يجب تحديد سعر صحيح وتفاصيل السعر قبل القبول.", {
+        action: {
+          label: "تجاهل",
+          onClick: () => console.log("Undo"),
+        },
+      });
       return;
     }
     if (newStatus === "مرفوض" && !isAdministrator) {
-      alert("ليس لديك صلاحية لرفض الطلبات.");
+      toast.error("ليس لديك صلاحية لرفض الطلبات.", {
+        action: {
+          label: "تجاهل",
+          onClick: () => console.log("Undo"),
+        },
+      });
       return;
     }
 
@@ -173,13 +194,29 @@ export const AdminOrderActionCard: React.FC<AdminOrderActionCardProps> = ({
         setRejectionReason("");
         setPriceInput("");
         setPriceDetailsInput("");
-        alert(`تم تحديث حالة الطلب #${order.id} إلى: ${newStatus}`);
+        toast.success("تحديث حالة الطلب", {
+          description: `تم تحديث حالة الطلب #${order.id} إلى: ${newStatus}`,
+          action: {
+            label: "تجاهل",
+            onClick: () => console.log("Undo"),
+          },
+        });
       } else {
-        alert(`فشل في تحديث الطلب. حاول مجددًا.`);
+        toast.error("فشل في تحديث الطلب", {
+          action: {
+            label: "تجاهل",
+            onClick: () => console.log("Undo"),
+          },
+        });
       }
     } catch (error) {
-      console.error("API Error:", error);
-      alert("حدث خطأ أثناء الاتصال بالخادم.");
+      toast.error("حدث خطأ أثناء الاتصال بالخادم.", {
+        description: ` حدث خطأ أثناء الاتصال بالخادم. ${error}`,
+        action: {
+          label: "تجاهل",
+          onClick: () => console.log("Undo"),
+        },
+      });
     } finally {
       setIsLoading(false);
     }

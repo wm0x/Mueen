@@ -1,7 +1,7 @@
 // src/app/api/users/check-email/route.ts
 import { db } from "@/lib/db";
 
-export const runtime = "nodejs"; // مهم Prisma
+export const runtime = "nodejs"; 
 
 export async function POST(req: Request) {
   try {

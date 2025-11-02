@@ -19,7 +19,6 @@ export function FileDropzone({ value = [], onChange, onBlur }: FileDropzoneProps
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const MAX_FILE_COUNT = 5; 
 
-  // 🚀 تم تصحيح النوع هنا
   const [files, setFiles] = useState<FileWithPreview[]>([]); 
   const [isDragActive, setIsDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +87,6 @@ export function FileDropzone({ value = [], onChange, onBlur }: FileDropzoneProps
     const availableSlots = MAX_FILE_COUNT - value.length;
     let filesToProcess = fileList;
     
-    // 1. التعامل مع تجاوز الحد الأقصى للعدد
     if (fileList.length > availableSlots) {
         maxCountExceededNames.push(...fileList.slice(availableSlots).map(f => f.name));
         filesToProcess = fileList.slice(0, availableSlots); 

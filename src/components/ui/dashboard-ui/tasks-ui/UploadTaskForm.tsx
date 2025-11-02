@@ -20,6 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FileDropzone } from "./Droppable";
 import { UploadOrderAction } from "@/app/server/action/orders";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 const ClassList = [
   ...[
@@ -61,58 +62,75 @@ function UploadTaskForm() {
     setError("");
     try {
       setButtonStatus("loading");
-  
+
       // here upload the file from front end ..
       const files = form.getValues().files;
       const uploadedUrls: string[] = [];
-  
+
       for (const file of files) {
         const filePath = `orders/${Date.now()}_${file.name}`;
         const { data, error } = await supabase.storage
           .from("orders")
           .upload(filePath, file);
-  
+
         if (error) {
           console.error(error);
           setButtonStatus("error");
           setError(`فشل رفع الملف: ${file.name}`);
           return;
         }
-  
+
         const { data: publicData } = supabase.storage
           .from("orders")
           .getPublicUrl(filePath);
-  
+
         if (!publicData?.publicUrl) {
           setButtonStatus("error");
           setError(`فشل الحصول على رابط الملف: ${file.name}`);
           return;
         }
-  
+
         uploadedUrls.push(publicData.publicUrl);
       }
-  
+
       const result = await UploadOrderAction({
         ...form.getValues(),
         fileUrls: uploadedUrls,
-        files: [], 
+        files: [],
       });
-  
+
       if (result.error) {
         setButtonStatus("error");
-        setSuccess(result.error);
+        setError(result.error);
+        toast.error("حدث خطأ !!", {
+          action: {
+            label: "تجاهل",
+            onClick: () => console.log("Undo"),
+          },
+        });
         return;
       }
-  
+
       setButtonStatus("success");
       setSuccess(result.success);
+      toast.success("تم انشاء الطلب بنجاح", {
+        action: {
+          label: "تجاهل",
+          onClick: () => console.log("Undo"),
+        },
+      });
     } catch (err) {
       console.error(err);
       setButtonStatus("error");
       setError("حدث خطأ أثناء إنشاء الطلب");
+      toast.error("حدث خطأ !!", {
+        action: {
+          label: "تجاهل",
+          onClick: () => console.log("Undo"),
+        },
+      });
     }
   };
-  
 
   const dateSchema = z
     .custom<Date>(
@@ -135,8 +153,8 @@ function UploadTaskForm() {
     title: z.string().min(5, "عنوان الطلب يجب أن يحتوي على 5 أحرف على الأقل"),
     subject: z.array(z.string()).min(1, "يجب اختيار مادة واحدة على الأقل"),
     description: z.string().optional(),
-    files: z.array(z.any()).min(1, "يجب رفع ملف واحد على الأقل"), 
-    fileUrls: z.array(z.string()).optional(), 
+    files: z.array(z.any()).min(1, "يجب رفع ملف واحد على الأقل"),
+    fileUrls: z.array(z.string()).optional(),
     deadline: dateSchema,
   });
 
@@ -148,8 +166,8 @@ function UploadTaskForm() {
       title: "",
       subject: [],
       description: "",
-      files: [], 
-      fileUrls: [], 
+      files: [],
+      fileUrls: [],
       deadline: new Date(),
     },
   });

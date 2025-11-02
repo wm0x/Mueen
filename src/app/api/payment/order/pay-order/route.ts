@@ -16,7 +16,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // تحديث حالة الطلب
     const updatedOrder = await db.order.update({
       where: { id: orderId },
       data: {
@@ -24,7 +23,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // تسجيل الحدث في سجل الطلب
     await db.orderTracking.create({
       data: {
         orderId: orderId,
