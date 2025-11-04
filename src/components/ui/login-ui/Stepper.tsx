@@ -171,10 +171,10 @@ export default function Stepper({
               {currentStep !== 1 && (
                 <button
                   onClick={handleBack}
-                  className={`duration-350 rounded px-2 py-1 transition ${
+                  className={`duration-350 rounded px-2 py-1 transition hover:cursor-pointer${
                     currentStep === 1
                       ? " hover:cursor-pointer opacity-50 text-neutral-400"
-                      : "text-neutral-400 hover:text-neutral-700"
+                      : "text-neutral-400 hover:text-neutral-700  hover:cursor-pointer"
                   }`}
                   {...backButtonProps}
                 >

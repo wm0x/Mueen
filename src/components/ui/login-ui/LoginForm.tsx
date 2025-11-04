@@ -1,9 +1,5 @@
 "use client";
-import React, {
-  useState,
-  useCallback,
-  useTransition,
-} from "react";
+import React, { useState, useCallback, useTransition } from "react";
 import Stepper, { Step } from "./Stepper";
 import { Input } from "../input";
 import ReactCountryFlag from "react-country-flag";
@@ -154,44 +150,45 @@ function LoginForm() {
       loginForm.setValue("email", currentEmail);
       signInForm.setValue("email", currentEmail);
       setEmailChecked(currentEmail);
+      startTransition(async () => {
+        try {
+          const res = await fetch("/api/users/check-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: currentEmail }),
+          });
 
-      try {
-        const res = await fetch("/api/users/check-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: currentEmail }),
-        });
+          let data;
+          let errorMessage = "فشل التحقق من البريد. يرجى مراجعة الاتصال.";
 
-        let data;
-        let errorMessage = "فشل التحقق من البريد. يرجى مراجعة الاتصال.";
+          if (!res.ok) {
+            try {
+              const errorJson = await res.json();
+              errorMessage =
+                errorJson.error || `خطأ في الخادم (الحالة: ${res.status})`;
+            } catch (e) {
+              const errorText = await res.text();
+              console.error(
+                "Received non-JSON error:",
+                errorText.substring(0, 100) + "..."
+              );
+              errorMessage = `حدث خطأ غير متوقع في الخادم. (الحالة: ${res.status})`;
+            }
 
-        if (!res.ok) {
-          try {
-            const errorJson = await res.json();
-            errorMessage =
-              errorJson.error || `خطأ في الخادم (الحالة: ${res.status})`;
-          } catch (e) {
-            const errorText = await res.text();
-            console.error(
-              "Received non-JSON error:",
-              errorText.substring(0, 100) + "..."
-            );
-            errorMessage = `حدث خطأ غير متوقع في الخادم. (الحالة: ${res.status})`;
+            console.log("❌ Fetch returned error:", errorMessage);
+            return;
           }
 
-          console.log("❌ Fetch returned error:", errorMessage);
-          return;
+          data = await res.json();
+
+          setEmailExists(data.exists);
+
+          setCurrentStep(2);
+        } catch (error) {
+        } finally {
+          setLoading(false);
         }
-
-        data = await res.json();
-
-        setEmailExists(data.exists);
-
-        setCurrentStep(2);
-      } catch (error) {
-      } finally {
-        setLoading(false);
-      }
+      });
     },
     [isEmailValid, loginForm, signInForm]
   );
